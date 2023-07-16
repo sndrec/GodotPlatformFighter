@@ -1,7 +1,10 @@
 class_name ProcessGrounded extends FighterFunction
 
 func _execute(inFt: Fighter):
+	if !inFt.grounded:
+		inFt._change_fighter_state(inFt.find_state_by_name("Fall"), 0, 0)
 	inFt.ftVel.y = 0
+	inFt.jumps = 0
 	var tempInput = inFt.input_controller.get_movement_vector()
 	var convInput = Vector3(tempInput.x, -tempInput.y, 0)
 	if inFt.get_frame_in_state() < inFt.InterruptableTime:

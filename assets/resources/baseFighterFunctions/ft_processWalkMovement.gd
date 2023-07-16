@@ -7,6 +7,6 @@ func _execute(inFt: Fighter):
 		convInput.x = max(convInput.x, 0)
 	else:
 		convInput.x = min(convInput.x, 0)
-	if absf(convInput.x) >= 0.01:
+	if absf(convInput.x) >= 0.02:
 		var desiredSpeed = maxf(inFt.FightTable.MaxWalkSpeed * absf(convInput.x), inFt.FightTable.InitialWalkSpeed)
 		inFt.ftVel.x = move_toward(inFt.ftVel.x, desiredSpeed * sign(convInput.x), inFt.FightTable.WalkAcceleration)

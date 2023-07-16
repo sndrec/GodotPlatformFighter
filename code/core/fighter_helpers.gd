@@ -107,10 +107,10 @@ func TestCapsuleCapsuleIntersection(a0: Vector3, a1: Vector3, ar: float, b0: Vec
 	var radiiSum := ar+br
 	var lineSegmentTest = closest_distance_between_lines(a0, a1, b0, b1)
 	if lineSegmentTest.Distance <= radiiSum:
-		DebugDraw.draw_sphere(a0, ar, Color(1, 0, 0), 1)
-		DebugDraw.draw_sphere(a1, ar, Color(1, 0, 0), 1)
-		DebugDraw.draw_sphere(b0, br, Color(1, 1, 0), 1)
-		DebugDraw.draw_sphere(b1, br, Color(1, 1, 0), 1)
+		#DebugDraw.draw_sphere(a0, ar, Color(1, 0, 0), 1)
+		#DebugDraw.draw_sphere(a1, ar, Color(1, 0, 0), 1)
+		#DebugDraw.draw_sphere(b0, br, Color(1, 1, 0), 1)
+		#DebugDraw.draw_sphere(b1, br, Color(1, 1, 0), 1)
 		return true
 	
 	return false

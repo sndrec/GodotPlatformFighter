@@ -433,6 +433,8 @@ func _change_fighter_state(inState: FighterState, blend: int = 0, lag: int = 0) 
 	for i in range(charState.onEnterState.size()):
 		charState.onEnterState[i]._execute(self)
 	execute_current_action(0)
+	if internalFrameCounter > 50 and inState.stateName == "Landing":
+		print("HI")
 	#print("entering state " + inState.stateName)
 
 func find_state_by_name(inState: String) -> FighterState:
@@ -468,6 +470,7 @@ func take_damage(inHitbox: HitboxDefinition, attacker: Fighter) -> void:
 	var ourHitlag = floor(c * floor(e * floor(3+inHitbox.damage/3)))
 	hitLag = ourHitlag
 	attacker.hitLag = ourHitlag
+	grounded = false
 
 func check_hitboxes() -> void:
 	for i in range(ActiveHitboxes.size()):
@@ -556,6 +559,10 @@ func fighter_tick() -> void:
 			hitLag -= 1
 		else:
 			internalFrameCounter += 1
+			if hitStun > 0:
+				hitStun -= 1
+				if hitStun == 0:
+					print("HI!")
 		
 		Animator.seek(float(get_frame_in_state() / 60.0), true)
 		
