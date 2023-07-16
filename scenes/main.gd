@@ -1,0 +1,97 @@
+extends Node2D
+
+
+@onready var connection_panel = $CanvasLayer/ConnectionPanel
+@onready var host_field = $CanvasLayer/ConnectionPanel/GridContainer/HostField
+@onready var port_field = $CanvasLayer/ConnectionPanel/GridContainer/PortField
+@onready var message_label = $CanvasLayer/MessageLabel
+@onready var sync_lost_label = $CanvasLayer/SyncLostLabel
+
+const BattlefieldStage = preload("res://scenes/stage/battlefield.tscn")
+const RookFighter = preload("res://scenes/char/rook/ft_rook.tscn")
+
+func _ready() -> void:
+	get_tree().get_multiplayer().connect("peer_connected", Callable(self, "_on_multiplayer_peer_connected"))
+	get_tree().get_multiplayer().connect("peer_disconnected", Callable(self, "_on_multiplayer_peer_disconnected"))
+	get_tree().get_multiplayer().connect("server_disconnected", Callable(self, "_on_server_disconnected"))
+	SyncManager.connect("sync_started", Callable(self, "_on_SyncManager_sync_started"))
+	SyncManager.connect("sync_stopped", Callable(self, "_on_SyncManager_sync_stopped"))
+	SyncManager.connect("sync_lost", Callable(self, "_on_SyncManager_sync_lost"))
+	SyncManager.connect("sync_regained", Callable(self, "_on_SyncManager_sync_regained"))
+	SyncManager.connect("sync_error", Callable(self, "_on_SyncManager_sync_error"))
+
+func _on_ServerButton_pressed():
+	var peer = ENetMultiplayerPeer.new()
+	peer.create_server(int(port_field.text), 1)
+	get_tree().get_multiplayer().multiplayer_peer = peer
+	connection_panel.visible = false
+	message_label.text = "Listening..."
+
+func _on_ClientButton_pressed():
+	var peer = ENetMultiplayerPeer.new()
+	peer.create_client(host_field.text, int(port_field.text))
+	get_tree().get_multiplayer().multiplayer_peer = peer
+	connection_panel.visible = false
+	message_label.text = "Connecting..."
+
+func _on_multiplayer_peer_connected(peer_id: int):
+	message_label.text = "Connected!"
+	SyncManager.add_peer(peer_id) 
+	
+	$ServerPlayer.set_multiplayer_authority(1)
+	
+	if get_tree().get_multiplayer().is_server():
+		$ClientPlayer.set_multiplayer_authority(peer_id)
+	else:
+		$ClientPlayer.set_multiplayer_authority(get_tree().get_multiplayer().get_unique_id())
+
+	if get_tree().get_multiplayer().is_server():
+		message_label.text = "Starting..."
+		await get_tree().create_timer(2.0).timeout
+		SyncManager.start()
+
+func _on_multiplayer_peer_disconnected(peer_id: int):
+	message_label.text = "Disconnected."
+	SyncManager.remove_peer(peer_id)
+
+func _on_server_disconnected() -> void:
+	_on_multiplayer_peer_disconnected(1)
+
+
+func _on_ResetButton_pressed():
+	SyncManager.stop()
+	SyncManager.clear_peers()
+	var peer = get_tree().get_multiplayer().multiplayer_peer
+	if peer:
+		peer.close()
+	get_tree().reload_current_scene()
+
+func _on_SyncManager_sync_started() -> void:
+	message_label.text = "Started!"
+	var Stage = SyncManager.spawn("Stage", $StageContainer, BattlefieldStage, {})
+	var Fighter1 = SyncManager.spawn("Fighter1", $StageContainer, RookFighter, {"position" = Vector3(0, 0, 0), "controller" = $ServerPlayer})
+	var Fighter2 = SyncManager.spawn("Fighter2", $StageContainer, RookFighter, {"position" = Vector3(0, 0, 0), "controller" = $ClientPlayer})
+	Fighter1.stage = Stage
+	Fighter2.stage = Stage
+	$ServerPlayer.controlledFighter = Fighter1
+	$ClientPlayer.controlledFighter = Fighter2
+	Stage.fighters.append(Fighter1)
+	Stage.fighters.append(Fighter2)
+
+func _on_SyncManager_sync_stopped() -> void:
+	pass
+
+func _on_SyncManager_sync_lost() -> void:
+	sync_lost_label.visible = true
+
+func _on_SyncManager_sync_regained() -> void:
+	sync_lost_label.visible = false
+
+func _on_SyncManager_sync_error(msg: String) -> void:
+	message_label.text = "Fatal sync error: " + msg
+	sync_lost_label.visible = false
+	
+	var peer = get_tree().get_multiplayer().multiplayer_peer
+	if peer:
+		peer.close()
+	SyncManager.clear_peers()

@@ -1,0 +1,6 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://csujkdlkx6r1g"]
+
+[ext_resource type="Script" path="res://assets/resources/baseFighterFunctions/ft_processWalkMovement.gd" id="1_nacds"]
+
+[resource]
+script = ExtResource("1_nacds")

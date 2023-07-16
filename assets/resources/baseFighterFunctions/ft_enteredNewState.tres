@@ -1,0 +1,6 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://pjcda7ucrkje"]
+
+[ext_resource type="Script" path="res://assets/resources/baseFighterFunctions/ft_enteredNewState.gd" id="1_8kcdp"]
+
+[resource]
+script = ExtResource("1_8kcdp")

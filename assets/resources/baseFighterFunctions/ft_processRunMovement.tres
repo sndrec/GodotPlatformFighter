@@ -1,0 +1,6 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://7pw1ctklgyrx"]
+
+[ext_resource type="Script" path="res://assets/resources/baseFighterFunctions/ft_processRunMovement.gd" id="1_yoost"]
+
+[resource]
+script = ExtResource("1_yoost")

@@ -1,0 +1,6 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://dk0xtgbw3fwc7"]
+
+[ext_resource type="Script" path="res://assets/resources/baseFighterFunctions/ft_processAirborne.gd" id="1_2y01a"]
+
+[resource]
+script = ExtResource("1_2y01a")

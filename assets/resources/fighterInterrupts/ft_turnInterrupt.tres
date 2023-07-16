@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="WaitInterrupt" load_steps=2 format=3 uid="uid://g4r8tfbag3j5"]
+
+[ext_resource type="Script" path="res://assets/resources/fighterInterrupts/ft_turnInterrupt.gd" id="1_acfyg"]
+
+[resource]
+script = ExtResource("1_acfyg")

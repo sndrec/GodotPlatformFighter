@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="WaitInterrupt" load_steps=2 format=3 uid="uid://dvghhkbo6dgej"]
+
+[ext_resource type="Script" path="res://assets/resources/fighterInterrupts/ft_waitInterrupt.gd" id="1_0o5oe"]
+
+[resource]
+script = ExtResource("1_0o5oe")
+blendTime = 0

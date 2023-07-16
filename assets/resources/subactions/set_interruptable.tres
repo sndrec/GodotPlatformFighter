@@ -1,0 +1,7 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://cc2lf3gdt5q1d"]
+
+[ext_resource type="Script" path="res://assets/resources/subactions/set_interruptable.gd" id="1_ccoa5"]
+
+[resource]
+script = ExtResource("1_ccoa5")
+canInterrupt = true

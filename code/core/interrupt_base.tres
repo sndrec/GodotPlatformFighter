@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="Subaction" load_steps=2 format=3 uid="uid://cne6jnmlmd6k8"]
+
+[ext_resource type="Script" path="res://code/core/interrupt_base.gd" id="1_35tki"]
+
+[resource]
+script = ExtResource("1_35tki")

@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="DashInterrupt" load_steps=2 format=3 uid="uid://buo3dvnfhbstb"]
+
+[ext_resource type="Script" path="res://assets/resources/fighterInterrupts/ft_dashInterrupt.gd" id="1_ctonl"]
+
+[resource]
+script = ExtResource("1_ctonl")
+blendTime = 0

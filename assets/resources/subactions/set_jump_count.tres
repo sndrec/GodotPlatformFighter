@@ -1,0 +1,7 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://diabevjaclkj8"]
+
+[ext_resource type="Script" path="res://assets/resources/subactions/set_jump_count.gd" id="1_teq47"]
+
+[resource]
+script = ExtResource("1_teq47")
+jumps = 0

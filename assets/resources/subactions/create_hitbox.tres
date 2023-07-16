@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="subaction_createhitbox" load_steps=2 format=3 uid="uid://qyun1ty4ceyb"]
+
+[ext_resource type="Script" path="res://assets/resources/subactions/create_hitbox.gd" id="1_7qkfs"]
+
+[resource]
+script = ExtResource("1_7qkfs")
+boneName = "HipN"
+hitboxID = 0
+startOffset = Vector3(4, 0, 0)
+endOffset = Vector3(0, 0, 0)
+radius = 1.0
+damage = 4.0
+damageShield = 0.0
+kbAngle = 90.0
+kbBase = 50.0
+kbGrowth = 0.0
+kbWeightSet = 0.0

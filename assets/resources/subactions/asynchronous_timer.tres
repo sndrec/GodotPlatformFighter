@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="AsynchronousTimer" load_steps=2 format=3 uid="uid://c6y4yxy2fqln1"]
+
+[ext_resource type="Script" path="res://assets/resources/subactions/asynchronous_timer.gd" id="1_r3sta"]
+
+[resource]
+script = ExtResource("1_r3sta")
+frames = 0

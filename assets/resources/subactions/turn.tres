@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="ClearHitboxes" load_steps=2 format=3 uid="uid://b44r13w5nxub5"]
+
+[ext_resource type="Script" path="res://assets/resources/subactions/turn.gd" id="1_mdpi0"]
+
+[resource]
+script = ExtResource("1_mdpi0")

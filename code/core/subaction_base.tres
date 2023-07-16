@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="Subaction" load_steps=2 format=3 uid="uid://dc2mkdsh7mw0t"]
+
+[ext_resource type="Script" path="res://code/core/subaction_base.gd" id="1_4qa4e"]
+
+[resource]
+script = ExtResource("1_4qa4e")

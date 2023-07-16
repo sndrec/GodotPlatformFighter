@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="RunInterrupt" load_steps=2 format=3 uid="uid://dryvprlo80twq"]
+
+[ext_resource type="Script" path="res://assets/resources/fighterInterrupts/ft_runInterrupt.gd" id="1_8mh4d"]
+
+[resource]
+script = ExtResource("1_8mh4d")
+blendTime = 0

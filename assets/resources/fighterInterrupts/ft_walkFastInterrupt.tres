@@ -1,0 +1,6 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://bxejvjaetjok4"]
+
+[ext_resource type="Script" path="res://assets/resources/fighterInterrupts/ft_walkFastInterrupt.gd" id="1_aii71"]
+
+[resource]
+script = ExtResource("1_aii71")

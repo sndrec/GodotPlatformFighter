@@ -1,0 +1,7 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://sw3c8vkeltdg"]
+
+[ext_resource type="Script" path="res://assets/resources/fighterInterrupts/ft_airDodgeInterrupt.gd" id="1_546oi"]
+
+[resource]
+script = ExtResource("1_546oi")
+blendTime = 0

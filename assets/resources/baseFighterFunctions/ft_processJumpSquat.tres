@@ -1,0 +1,6 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://cipgvyjw5hspm"]
+
+[ext_resource type="Script" path="res://assets/resources/baseFighterFunctions/ft_processJumpSquat.gd" id="1_cwcrt"]
+
+[resource]
+script = ExtResource("1_cwcrt")

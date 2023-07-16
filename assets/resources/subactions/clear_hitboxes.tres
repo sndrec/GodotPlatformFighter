@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="ClearHitboxes" load_steps=2 format=3 uid="uid://ccno1sss72p5w"]
+
+[ext_resource type="Script" path="res://assets/resources/subactions/clear_hitboxes.gd" id="1_dtpuh"]
+
+[resource]
+script = ExtResource("1_dtpuh")

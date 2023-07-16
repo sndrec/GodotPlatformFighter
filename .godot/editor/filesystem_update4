@@ -1,0 +1,8 @@
+res://default_env.tres
+res://scenes/char/rook/ft_rook.tscn
+res://assets/shaders/hurtbox.gdshader
+res://scenes/hurtbox.gd
+res://scenes/main.tscn
+res://scenes/stage/battlefield.tscn
+res://scenes/hurtbox.tscn
+res://code/core/fighter_base.gd

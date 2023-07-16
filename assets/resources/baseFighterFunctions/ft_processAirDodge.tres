@@ -1,0 +1,6 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://stnd1ssq7v7f"]
+
+[ext_resource type="Script" path="res://assets/resources/baseFighterFunctions/ft_processAirDodge.gd" id="1_nmanq"]
+
+[resource]
+script = ExtResource("1_nmanq")

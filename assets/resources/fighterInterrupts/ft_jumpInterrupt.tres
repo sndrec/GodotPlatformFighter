@@ -1,0 +1,7 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://pm1bgpc3h8mj"]
+
+[ext_resource type="Script" path="res://assets/resources/fighterInterrupts/ft_jumpInterrupt.gd" id="1_cdp6r"]
+
+[resource]
+script = ExtResource("1_cdp6r")
+blendTime = 0

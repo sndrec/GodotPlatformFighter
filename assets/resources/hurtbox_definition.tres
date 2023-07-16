@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="HurtboxDefinition" load_steps=2 format=3 uid="uid://j7rkby6b7y4d"]
+
+[ext_resource type="Script" path="res://assets/resources/hurtbox_definition.gd" id="1_ycrgi"]
+
+[resource]
+script = ExtResource("1_ycrgi")
+boneName = ""
+startOffset = Vector3(0, 0, 0)
+endOffset = Vector3(0, 0, 0)
+radius = 0.0

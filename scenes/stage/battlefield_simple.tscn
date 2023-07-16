@@ -1,0 +1,39 @@
+[gd_scene load_steps=7 format=3 uid="uid://cyovp5f4v7kp7"]
+
+[ext_resource type="Script" path="res://code/core/stage_base.gd" id="1_mp2ee"]
+[ext_resource type="Script" path="res://assets/resources/stage_collision_segment.gd" id="2_g0nmq"]
+
+[sub_resource type="Resource" id="Resource_psj1f"]
+script = ExtResource("2_g0nmq")
+startOffset = Vector2(0, 10)
+endOffset = Vector2(0, -10)
+friction = 1.0
+colType = 0
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_3m6rq"]
+sky_top_color = Color(0.2, 0.2, 0.2, 1)
+sky_horizon_color = Color(0.0862745, 0.0862745, 0.0862745, 1)
+sky_energy_multiplier = 3.0
+ground_bottom_color = Color(0.2, 0.2, 0.2, 1)
+ground_horizon_color = Color(0.168627, 0.168627, 0.168627, 1)
+
+[sub_resource type="Sky" id="Sky_lwf5k"]
+sky_material = SubResource("ProceduralSkyMaterial_3m6rq")
+
+[sub_resource type="Environment" id="Environment_5jdps"]
+background_mode = 2
+sky = SubResource("Sky_lwf5k")
+tonemap_mode = 2
+ssao_enabled = true
+glow_enabled = true
+
+[node name="battlefield" type="Node3D" groups=["network_sync"]]
+script = ExtResource("1_mp2ee")
+StageCollisionSegments = Array[ExtResource("2_g0nmq")]([SubResource("Resource_psj1f")])
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.22325, -0.844168, 0.487381, 0, 0.5, 0.866025, -0.974761, 0.19334, -0.111625, 0, 0, 0)
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_5jdps")

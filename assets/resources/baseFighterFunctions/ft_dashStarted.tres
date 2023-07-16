@@ -1,0 +1,6 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://dpj76jk3eohiw"]
+
+[ext_resource type="Script" path="res://assets/resources/baseFighterFunctions/ft_dashStarted.gd" id="1_ahkmr"]
+
+[resource]
+script = ExtResource("1_ahkmr")

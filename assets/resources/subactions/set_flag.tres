@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="SynchronousTimer" load_steps=2 format=3 uid="uid://cw0x6xf6ef63f"]
+
+[ext_resource type="Script" path="res://assets/resources/subactions/set_flag.gd" id="1_4qaow"]
+
+[resource]
+script = ExtResource("1_4qaow")
+flag = 0
+on = false

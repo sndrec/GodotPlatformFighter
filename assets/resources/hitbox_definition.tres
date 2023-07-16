@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="HurtboxDefinition" load_steps=2 format=3 uid="uid://csbm2aohy1v8u"]
+
+[ext_resource type="Script" path="res://assets/resources/hitbox_definition.gd" id="1_rol6m"]
+
+[resource]
+script = ExtResource("1_rol6m")
+boneName = "HipN"
+hitboxID = 0
+startOffset = Vector3(0, 0, 0)
+endOffset = Vector3(0, 0, 0)
+radius = 1.0
+damage = 0.0
+damageShield = 0.0
+kbAngle = 0.0
+kbBase = 0.0
+kbGrowth = 0.0
+kbWeightSet = 0.0

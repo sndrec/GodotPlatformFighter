@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="SynchronousTimer" load_steps=2 format=3 uid="uid://dtrcbsup5p7pg"]
+
+[ext_resource type="Script" path="res://assets/resources/subactions/synchronous_timer.gd" id="1_ll81y"]
+
+[resource]
+script = ExtResource("1_ll81y")
+frames = 0
