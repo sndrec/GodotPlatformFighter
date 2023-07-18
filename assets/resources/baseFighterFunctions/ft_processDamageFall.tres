@@ -1,0 +1,6 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://bruext6m5euwh"]
+
+[ext_resource type="Script" path="res://assets/resources/baseFighterFunctions/ft_processDamageFall.gd" id="1_l0hgg"]
+
+[resource]
+script = ExtResource("1_l0hgg")

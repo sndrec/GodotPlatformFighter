@@ -69,6 +69,11 @@ func position_debug_helpers() -> void:
 	HurtboxTail.position = tempEnd
 	HurtboxMiddle.position = (tempStart + tempEnd) * 0.5
 	
+	if isHitbox:
+		HurtboxHead.global_position = startOffset
+		HurtboxTail.global_position = endOffset
+		HurtboxMiddle.global_position = (startOffset + endOffset) * 0.5
+	
 	HurtboxHead.quaternion = Quaternion(Vector3(0, -1, 0), (HurtboxTail.position - HurtboxHead.position).normalized())
 	HurtboxTail.quaternion = Quaternion(Vector3(0, -1, 0), (HurtboxHead.position - HurtboxTail.position).normalized())
 	if HurtboxHead.position == HurtboxTail.position:
@@ -85,9 +90,11 @@ func position_debug_helpers() -> void:
 		
 	HurtboxMiddle.quaternion = HurtboxHead.quaternion
 	
-	HurtboxHead.scale = Vector3(radius * 2, radius * 2, radius * 2)
-	HurtboxTail.scale = Vector3(radius * 2, radius * 2, radius * 2)
-	HurtboxMiddle.scale = Vector3(radius * 2, (HurtboxTail.position - HurtboxHead.position).length(), radius * 2)
+	var trueRadius = radius * (1 / skeleton.get_parent().scale.x)
+	
+	HurtboxHead.scale = Vector3(trueRadius * 2, trueRadius * 2, trueRadius * 2)
+	HurtboxTail.scale = Vector3(trueRadius * 2, trueRadius * 2, trueRadius * 2)
+	HurtboxMiddle.scale = Vector3(trueRadius * 2, (HurtboxTail.position - HurtboxHead.position).length(), trueRadius * 2)
 	
 	if isHitbox:
 		var dir = FHelp.Vec2to3(Vector2.from_angle(angle))

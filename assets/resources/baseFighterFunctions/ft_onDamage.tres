@@ -1,0 +1,6 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://cymaqyd0xlfaj"]
+
+[ext_resource type="Script" path="res://assets/resources/baseFighterFunctions/ft_onDamage.gd" id="1_tsudf"]
+
+[resource]
+script = ExtResource("1_tsudf")

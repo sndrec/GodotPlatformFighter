@@ -1,0 +1,7 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://dbayiswfkk75g"]
+
+[ext_resource type="Script" path="res://assets/resources/subactions/clear_hitbox.gd" id="1_hqi16"]
+
+[resource]
+script = ExtResource("1_hqi16")
+ID_To_Clear = 0

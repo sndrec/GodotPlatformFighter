@@ -8,9 +8,10 @@ class_name PFStage
 
 var fighters: Array[Fighter] = []
 
+var cameraTransform: Transform3D = Transform3D.IDENTITY
+
 func _ready():
 	pass # Replace with function body.
-
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
@@ -24,3 +25,14 @@ func _process(delta):
 			lineColor = Color(0.2, 0.2, 1)
 		DebugDraw.draw_line(start3D, end3D, lineColor, 0.016)
 		DebugDraw.draw_arrow_line(midPoint, midPoint + dir * 8, lineColor, 1, true, 0.016)
+
+
+
+func _save_state() -> Dictionary:
+	return {
+		cameraTransform = cameraTransform
+	}
+	
+
+func _load_state(state: Dictionary) -> void:
+	cameraTransform = state["cameraTransform"]

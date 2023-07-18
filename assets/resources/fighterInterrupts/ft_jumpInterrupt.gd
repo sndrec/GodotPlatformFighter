@@ -13,8 +13,8 @@ func _execute(inFt: Fighter) -> bool:
 		if absf(inFt.ftVel.x) < inFt.FightTable.InitialHorizontalJumpVelocity or sign(inFt.input_controller.get_movement_vector().x) != inFt.facing:
 			inFt.ftVel.x = inFt.FightTable.InitialHorizontalJumpVelocity * inFt.input_controller.get_movement_vector().x
 		if sign(inFt.ftVel.x) == inFt.facing:
-			inFt._change_fighter_state(inFt.find_state_by_name("JumpF"), blendTime)
+			inFt._change_fighter_state(inFt.find_state_by_name("JumpF"), blendTime, lagTime)
 		else:
-			inFt._change_fighter_state(inFt.find_state_by_name("JumpB"), blendTime)
+			inFt._change_fighter_state(inFt.find_state_by_name("JumpB"), blendTime, lagTime)
 		return true
 	return false

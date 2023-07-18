@@ -14,8 +14,12 @@ var stage: PFStage
 		construct_hurtboxes()
 		UpdateHurtboxes = inHurt
 
-
+## Hurtboxes are what attack and grab hitboxes test against, to see if you should be hit.
+## Try to match them closely to the shape of your character.
 @export var Hurtboxes: Array[HurtboxDefinition] = []
+
+## These are important properties, used to determine the characteristics of your fighter.
+## You can control things such as movement speed and acceleration, weight, falling speed, and more.
 @export var FightTable: Dictionary = {
 	InitialWalkSpeed = 0.08,
 	WalkAcceleration = 0.0,
@@ -62,9 +66,23 @@ var stage: PFStage
 	WallJumpHorizontalVelocity = 1.3,
 	WallJumpVerticalVelocity = 2.6
 }
+
+## Names of the bones that should be used to calculate the ECB,
+## a special structure used to create the character's collision.
+## Recommended to select 3-6 bones that will typically represent
+## the bounds of your character, like hands/feet/head/tail.
 @export var ECB_Bones: Array[String] = []
+
+## Function to run any time the fighter enters a new state.
 @export var OnStateEnterFunc: FighterFunction
+
+## Function to run on every frame.
 @export var OnFrameFunc: FighterFunction
+
+## Function to run when this fighter takes damage.
+@export var OnDamage: FighterFunction
+
+## All possible states for the fighter to exist in.
 @export var States: Array[FighterState] = []
 
 var ECB: Array = [[Vector2.ZERO, Vector2.ZERO, Vector2.ZERO, Vector2.ZERO], Vector2.ZERO]
@@ -91,112 +109,11 @@ var InterruptableTime = 0
 var jumps : int = 0
 var JustChangedState : bool = false
 var internalFrameCounter : int = 0
+var lastHitHurtbox : HurtboxDefinition
+var lastHitHitbox : HitboxDefinition
+var downDesire = "U"
 
-enum action_state {
-	WAIT,
-	WALK_SLOW,
-	WALK_MIDDLE,
-	WALK_FAST,
-	DASH,
-	RUN,
-	RUN_BRAKE,
-	RUN_TURN,
-	TURN,
-	JUMPSQUAT,
-	JUMP_F,
-	JUMP_B,
-	JUMP_AERIAL_F,
-	JUMP_AERIAL_B,
-	FALL,
-	SPECIAL_FALL,
-	LANDING,
-	TEETER,
-	PLATFORM_DROP,
-	LEDGE_CATCH,
-	LEDGE_WAIT,
-	LEDGE_GETUP_QUICK,
-	LEDGE_GETUP_SLOW,
-	LEDGE_ROLL_QUICK,
-	LEDGE_ROLL_SLOW,
-	LEDGE_JUMP_QUICK,
-	LEDGE_JUMP_SLOW,
-	LEDGE_ATTACK_QUICK,
-	LEDGE_ATTACK_SLOW,
-	ATTACK_JAB_1,
-	ATTACK_JAB_2,
-	ATTACK_JAB_3,
-	ATTACK_JAB_REPEATING,
-	ATTACK_JAB_REPEATING_END,
-	ATTACK_DASH,
-	ATTACK_TILT_HI,
-	ATTACK_TILT_MID_HI,
-	ATTACK_TILT_MID,
-	ATTACK_TILT_MID_LOW,
-	ATTACK_TILT_LOW,
-	ATTACK_STRONG_HI,
-	ATTACK_STRONG_MID_HI,
-	ATTACK_STRONG_MID,
-	ATTACK_STRONG_MID_LOW,
-	ATTACK_STRONG_LOW,
-	ATTACK_AERIAL_F,
-	ATTACK_AERIAL_B,
-	ATTACK_AERIAL_HI,
-	ATTACK_AERIAL_LOW,
-	ATTACK_AERIAL_N,
-	GRAB,
-	GRAB_DASH,
-	GRAB_WAIT,
-	GRAB_PUMMEL,
-	GRAB_CUT,
-	THROW_F,
-	THROW_HI,
-	THROW_B,
-	THROW_LOW,
-	GRABBED_HI_START,
-	GRABBED_HI_WAIT,
-	GRABBED_HI_DAMAGE,
-	GRABBED_LOW_START,
-	GRABBED_LOW_WAIT,
-	GRABBED_LOW_DAMAGE,
-	GRABBED_CUT,
-	GRABBED_JUMP,
-	LANDING_AIR_F,
-	LANDING_AIR_B,
-	LANDING_AIR_HI,
-	LANDING_AIR_LOW,
-	LANDING_AIR_N,
-	ESCAPE_SPOT,
-	ESCAPE_F,
-	ESCAPE_B,
-	ESCAPE_AIR,
-	SHIELD_ACTIVATE,
-	SHIELD_HOLD,
-	SHIELD_DEACTIVATE,
-	SHIELD_DAMAGE,
-	CROUCH,
-	CROUCH_WAIT,
-	CROUCH_UNCROUCH,
-	DAMAGEFALL,
-	DAMAGE,
-	DAMAGE_AIR,
-	DAMAGE_FLY,
-	DAMAGE_WALL,
-	DOWN_BOUND,
-	DOWN_WAIT,
-	DOWN_DAMAGE,
-	DOWN_STAND,
-	DOWN_ATTACK,
-	DOWN_FORWARD,
-	DOWN_BACK,
-	TECH_INPLACE,
-	TECH_FORWARD,
-	TECH_BACKWARD,
-	TECH_WALL,
-	TECH_WALLJUMP,
-	TECH_CEIL,
-	SHIELD_BROKEN,
-	MISS_FOOT
-}
+
 
 func _ready():
 	if Engine.is_editor_hint():
@@ -359,25 +276,52 @@ func construct_hurtboxes():
 		instanceCounter += 3
 		FighterSkeleton.add_child(newHurtboxInstance)
 	var anim = $AnimationPlayer as NetworkAnimationPlayer
+	var oldAnimPos = anim.current_animation_position
 	var frame = int(anim.current_animation_position * 60)
 	unfold_action(find_state_by_anim(anim.assigned_animation).action)
 	#print(curSubaction)
 	for i in range(frame + 1):
+		anim.seek(float(i) / 60.0, true)
+		update_pose()
 		if i < curSubaction.size():
 			for subaction in curSubaction[i]:
-				subaction._execute(self)
-	
+				if subaction:
+					subaction._execute(self)
+		for hitboxDef in ActiveHitboxes:
+			if !ActiveHitboxes:
+				continue
+			if FighterSkeleton.find_bone(hitboxDef.boneName) == -1:
+				continue
+			var boneID = FighterSkeleton.find_bone(hitboxDef.boneName)
+			if boneID == -1:
+				break
+			var bonePose = FighterSkeleton.get_bone_global_pose(boneID)
+			var globalPos = hitboxDef.offset
+			globalPos = bonePose * globalPos
+			globalPos = FighterSkeleton.to_global(globalPos)
+			if hitboxDef.firstFrame:
+				hitboxDef.firstFrame = false
+				hitboxDef.curGlobalPosition = globalPos
+				hitboxDef.oldGlobalPosition = globalPos
+			else:
+				hitboxDef.oldGlobalPosition = hitboxDef.curGlobalPosition
+				hitboxDef.curGlobalPosition = globalPos
+	anim.seek(oldAnimPos, true)
+	update_pose()
 	#print(ActiveHitboxes)
 	for hitboxDef in ActiveHitboxes:
 		if !ActiveHitboxes:
 			continue
 		if FighterSkeleton.find_bone(hitboxDef.boneName) == -1:
 			continue
+		var boneID = FighterSkeleton.find_bone(hitboxDef.boneName)
+		if boneID == -1:
+			break
 		var newHitbox = preload("res://scenes/hurtbox.tscn")
 		var newHitboxInstance = newHitbox.instantiate()
 		newHitboxInstance.boneName = hitboxDef.boneName
-		newHitboxInstance.startOffset = hitboxDef.offset
-		newHitboxInstance.endOffset = hitboxDef.offset
+		newHitboxInstance.startOffset = hitboxDef.oldGlobalPosition
+		newHitboxInstance.endOffset = hitboxDef.curGlobalPosition
 		newHitboxInstance.radius = hitboxDef.radius
 		newHitboxInstance.isHitbox = true
 		newHitboxInstance.angle = hitboxDef.kbAngle
@@ -385,35 +329,77 @@ func construct_hurtboxes():
 		instanceCounter += 3
 		for child in newHitboxInstance.get_children():
 			var kfg = child as MeshInstance3D
-			kfg.set_instance_shader_parameter("bubbleColor", Vector3(0.1, 0.0, 0.0))
+			kfg.set_instance_shader_parameter("bubbleColor", Vector3(0.25, 0.0, 0.0))
 
 func unfold_action(inAction: Array[Subaction]) -> void:
 	curSubaction.clear()
 	var subactionLength := 0
 	var Unfolded : Array[Array] = []
 	for i in range(inAction.size()):
+		if inAction[i] is SetLoop:
+			
+			var maxLoopSize = 100
+			var curLoopLength = 1
+			var loopActive = true
+			
+			while loopActive:
+				if inAction[i + curLoopLength] is SynchronousTimer:
+					subactionLength += inAction[i + curLoopLength].frames * (inAction[i].LoopCount - 1)
+				if inAction[i + curLoopLength] is ExecuteLoop:
+					loopActive = false
+					i = i + curLoopLength
+				curLoopLength += 1
+				if curLoopLength >= maxLoopSize:
+					loopActive = false
+					i += 1 # skip it
+					print("Infinite loop?")
+			
 		if inAction[i] is SynchronousTimer:
 			subactionLength += inAction[i].frames
 			continue
+			
 		if inAction[i] is AsynchronousTimer:
 			if subactionLength < inAction[i].frames:
 				subactionLength = inAction[i].frames
 			continue
+			
 	
 	for i in range(subactionLength + 1):
 		Unfolded.append([])
 	
 	var curIndex := 0
-	
-	for i in range(inAction.size()):
-		if inAction[i] is SynchronousTimer:
-			curIndex += inAction[i].frames
+	var loopCount := 0
+	var loopStart := 0
+	var index = 0
+	#print("Starting action parse")
+	while index < inAction.size():
+		#print(str(index) + ": " + inAction[index].SubactionName)
+		if inAction[index] is SetLoop:
+			loopStart = index + 1
+			loopCount = inAction[index].LoopCount - 1
+			index += 1
 			continue
-		if inAction[i] is AsynchronousTimer:
-			if curIndex < inAction[i].frames:
-				curIndex = inAction[i].frames
+		if inAction[index] is ExecuteLoop:
+			if loopCount > 0:
+				index = loopStart
+				loopCount -= 1
+			else:
+				index += 1
+			#print("Loop activated. Going back to " + str(i))
 			continue
-		Unfolded[curIndex].append(inAction[i])
+		if inAction[index] is SynchronousTimer:
+			curIndex += inAction[index].frames
+			index += 1
+			continue
+		if inAction[index] is AsynchronousTimer:
+			if curIndex < inAction[index].frames:
+				curIndex = inAction[index].frames
+			index += 1
+			continue
+		Unfolded[curIndex].append(inAction[index])
+		index += 1
+	#print("Action parsed!")
+	#print(Unfolded.size())
 	curSubaction = Unfolded
 
 func _change_fighter_state(inState: FighterState, blend: int = 0, lag: int = 0) -> void:
@@ -432,10 +418,23 @@ func _change_fighter_state(inState: FighterState, blend: int = 0, lag: int = 0) 
 		OnStateEnterFunc._execute(self)
 	for i in range(charState.onEnterState.size()):
 		charState.onEnterState[i]._execute(self)
+	
+	TransNPhysics = charState.useAnimPhysics
+	var TransN = FighterSkeleton.find_bone("TransN")
+	var TransNNewTransform = FighterSkeleton.get_bone_global_pose(TransN)
+	var TransNPos = FighterSkeleton.to_global(TransNNewTransform.origin)
+	TransNPos -= position
+	TransNOldPos = TransNPos
+	
+	if blendTime > 0:
+		var ratio = float(get_frame_in_state() + 1) / blendTime
+		for i in range(FighterSkeleton.get_bone_count()):
+			var blendTransform = oldPose[i].interpolate_with(FighterSkeleton.get_bone_pose(i), ratio)
+			FighterSkeleton.set_bone_pose_position(i, blendTransform.origin)
+			FighterSkeleton.set_bone_pose_rotation(i, blendTransform.basis.get_rotation_quaternion())
+			FighterSkeleton.set_bone_pose_scale(i, blendTransform.basis.get_scale())
+	update_pose()
 	execute_current_action(0)
-	if internalFrameCounter > 50 and inState.stateName == "Landing":
-		print("HI")
-	#print("entering state " + inState.stateName)
 
 func find_state_by_name(inState: String) -> FighterState:
 	for fstate in States:
@@ -452,25 +451,10 @@ func find_state_by_anim(inAnim: String) -> FighterState:
 func _network_process(input: Dictionary) -> void:
 	pass
 
-func do_damage(inHitbox: HitboxDefinition, victim: Fighter) -> void:
+func do_damage(inHurtbox: HurtboxDefinition, inHitbox: HitboxDefinition, victim: Fighter) -> void:
 	FightersHit.append(victim)
-	victim.take_damage(inHitbox, self)
-
-func take_damage(inHitbox: HitboxDefinition, attacker: Fighter) -> void:
-	percentage += inHitbox.damage
-	var knockBack = FHelp.CalculateKnockback(inHitbox, attacker, self)
-	var side = sign(ftPos.x - attacker.ftPos.x)
-	var kbAngle = Vector2.from_angle(inHitbox.kbAngle)
-	kbAngle.x *= side
-	ftVel = Vector2.ZERO
-	kbVel = kbAngle * knockBack * 0.03
-	hitStun = floor(knockBack * 0.4)
-	var c = 1
-	var e = 1
-	var ourHitlag = floor(c * floor(e * floor(3+inHitbox.damage/3)))
-	hitLag = ourHitlag
-	attacker.hitLag = ourHitlag
-	grounded = false
+	if victim.OnDamage:
+		victim.OnDamage._execute(victim, inHurtbox, inHitbox, self)
 
 func check_hitboxes() -> void:
 	for i in range(ActiveHitboxes.size()):
@@ -511,7 +495,7 @@ func check_hitboxes() -> void:
 				globalEnd = curFighter.FighterSkeleton.to_global(globalEnd)
 				var intersect = FHelp.TestCapsuleCapsuleIntersection(curHitbox.curGlobalPosition, curHitbox.oldGlobalPosition, curHitbox.radius, globalStart, globalEnd, curHurtbox.radius)
 				if intersect:
-					do_damage(curHitbox, curFighter)
+					do_damage(curHurtbox, curHitbox, curFighter)
 					break
 
 func check_interrupts(recursion: int) -> void:
@@ -519,8 +503,14 @@ func check_interrupts(recursion: int) -> void:
 		print("Stopped an interrupt loop.")
 		return
 	var interruptedPrematurely = false
-	if get_frame_in_state() >= InterruptableTime:
+	if get_frame_in_state() >= InterruptableTime and hitStun == 0:
 		for i in range(charState.interrupts.size()):
+			if grounded:
+				if charState.interrupts[i].requiredState == Interrupt.groundRequire.OnlyAirborne:
+					continue
+			else:
+				if charState.interrupts[i].requiredState == Interrupt.groundRequire.OnlyGrounded:
+					continue
 			var interrupted = charState.interrupts[i]._execute(self)
 			if interrupted: 
 				interruptedPrematurely = true
@@ -555,14 +545,23 @@ func fighter_tick() -> void:
 	
 	if input_controller:
 		
+		#if charState.stateName == "Jab1" and get_frame_in_state() > 10 and internalFrameCounter > 100:
+		#	print("HI")
+		
 		if hitLag > 0:
 			hitLag -= 1
+			if hitLag == 0:
+				var kbVelPerpendicular = kbVel.rotated(PI * 0.5)
+				var moveRestrict = input_controller.get_movement_vector()
+				if moveRestrict.length() > 1:
+					moveRestrict = moveRestrict.normalized()
+				var DirectionalInfluencePower = kbVelPerpendicular.dot(moveRestrict)
+				var maxDIAng = deg_to_rad(18)
+				kbVel = kbVel.rotated(maxDIAng * DirectionalInfluencePower)
 		else:
 			internalFrameCounter += 1
 			if hitStun > 0:
 				hitStun -= 1
-				if hitStun == 0:
-					print("HI!")
 		
 		Animator.seek(float(get_frame_in_state() / 60.0), true)
 		
@@ -610,10 +609,19 @@ func fighter_tick() -> void:
 			
 			check_hitboxes()
 		
+		if kbVel.length() > 0:
+			DebugDraw.set_text("KBVEL", kbVel)
 	#draw_ecb()
-	ftPos.x = clampf(ftPos.x, -90, 90)
-	ftPos.y = clampf(ftPos.y, -50, 50)
+	if ftPos.x < -90 or ftPos.x > 90 or ftPos.y < -60 or ftPos.y > 60:
+		percentage = 0
+		ftPos = Vector2(0, 0)
+		_change_fighter_state(find_state_by_name("Wait"), 0, 0)
+		_calculate_ecb()
+		_calculate_ecb()
 	position = FHelp.Vec2to3(ftPos)
+	if hitStun > 0 and hitLag > 0:
+		var RNG = RandomNumberGenerator.new()
+		position.x += RNG.randf_range(-2, 2)
 	DebugDraw.set_text("BUTTONS", input_controller.shield_down())
 	DebugDraw.set_text("STATE", charState.stateName)
 	DebugDraw.set_text("ACTION TIMER", "NO ACTION")
@@ -622,17 +630,12 @@ func fighter_tick() -> void:
 
 func _save_state() -> Dictionary:
 	return {
-		position = position,
-		Hurtboxes = Hurtboxes.duplicate(),
-		FightTable = FightTable.duplicate(),
-		ECB_Bones = ECB_Bones.duplicate(),
-		States = States.duplicate(),
-		ECB = ECB.duplicate(),
-		ECBOld = ECBOld.duplicate(),
-		ActiveHitboxes = ActiveHitboxes.duplicate(),
-		curSubaction = curSubaction.duplicate(),
+		_Hurtboxes = Hurtboxes.duplicate(),
+		_FightersHit = FightersHit.duplicate(),
+		_ActiveHitboxes = ActiveHitboxes.duplicate(),
+		_curSubaction = curSubaction.duplicate(),
+		_charState = charState.duplicate(),
 		stateFlags = stateFlags,
-		FightersHit = FightersHit.duplicate(),
 		facing = facing,
 		kbVel = kbVel,
 		ftVel = ftVel,
@@ -641,8 +644,6 @@ func _save_state() -> Dictionary:
 		hitLag = hitLag,
 		hitStun = hitStun,
 		percentage = percentage,
-		charState = charState.duplicate(),
-		oldPose = oldPose.duplicate(),
 		blendTime = blendTime,
 		lastStateChange = lastStateChange,
 		TransNPhysics = TransNPhysics,
@@ -650,22 +651,25 @@ func _save_state() -> Dictionary:
 		InterruptableTime = InterruptableTime,
 		jumps = jumps,
 		JustChangedState = JustChangedState,
-		internalFrameCounter = internalFrameCounter
+		internalFrameCounter = internalFrameCounter,
+		lastHitHurtbox = lastHitHurtbox,
+		lastHitHitbox = lastHitHitbox,
+		downDesire = downDesire,
+		FightTable = FightTable.duplicate(),
+		ECB_Bones = ECB_Bones.duplicate(),
+		ECB = ECB.duplicate(),
+		ECBOld = ECBOld.duplicate(),
+		oldPose = oldPose.duplicate()
 	}
 	
 
 func _load_state(state: Dictionary) -> void:
-		position = state["position"]
-		Hurtboxes = state["Hurtboxes"].duplicate()
-		FightTable = state["FightTable"].duplicate()
-		ECB_Bones = state["ECB_Bones"].duplicate()
-		States = state["States"].duplicate()
-		ECB = state["ECB"].duplicate()
-		ECBOld = state["ECBOld"].duplicate()
-		ActiveHitboxes = state["ActiveHitboxes"].duplicate()
-		curSubaction = state["curSubaction"].duplicate()
+		Hurtboxes = state["_Hurtboxes"].duplicate()
+		FightersHit = state["_FightersHit"].duplicate()
+		ActiveHitboxes = state["_ActiveHitboxes"].duplicate()
+		curSubaction = state["_curSubaction"].duplicate()
+		charState = state["_charState"].duplicate()
 		stateFlags = state["stateFlags"]
-		FightersHit = state["FightersHit"].duplicate()
 		facing = state["facing"]
 		kbVel = state["kbVel"]
 		ftVel = state["ftVel"]
@@ -674,8 +678,6 @@ func _load_state(state: Dictionary) -> void:
 		hitLag = state["hitLag"]
 		hitStun = state["hitStun"]
 		percentage = state["percentage"]
-		charState = state["charState"].duplicate()
-		oldPose = state["oldPose"].duplicate()
 		blendTime = state["blendTime"]
 		lastStateChange = state["lastStateChange"]
 		TransNPhysics = state["TransNPhysics"]
@@ -684,3 +686,11 @@ func _load_state(state: Dictionary) -> void:
 		jumps = state["jumps"]
 		JustChangedState = state["JustChangedState"]
 		internalFrameCounter = state["internalFrameCounter"]
+		lastHitHurtbox = state["lastHitHurtbox"]
+		lastHitHitbox = state["lastHitHitbox"]
+		downDesire = state["downDesire"]
+		FightTable = state["FightTable"].duplicate()
+		ECB_Bones = state["ECB_Bones"].duplicate()
+		ECB = state["ECB"].duplicate()
+		ECBOld = state["ECBOld"].duplicate()
+		oldPose = state["oldPose"].duplicate()

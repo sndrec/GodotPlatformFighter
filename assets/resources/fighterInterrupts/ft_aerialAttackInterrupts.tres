@@ -1,0 +1,6 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://di5lf5ruvtw7n"]
+
+[ext_resource type="Script" path="res://assets/resources/fighterInterrupts/ft_aerialAttackInterrupts.gd" id="1_hrrgl"]
+
+[resource]
+script = ExtResource("1_hrrgl")

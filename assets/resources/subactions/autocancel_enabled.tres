@@ -1,0 +1,7 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://cp0u4i6mx1rlc"]
+
+[ext_resource type="Script" path="res://assets/resources/subactions/autocancel_enabled.gd" id="1_pascf"]
+
+[resource]
+script = ExtResource("1_pascf")
+autocancelOn = false

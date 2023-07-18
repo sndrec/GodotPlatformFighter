@@ -25,6 +25,10 @@ FHelp="*res://code/core/fighter_helpers.gd"
 
 enabled=PackedStringArray("res://addons/godot-rollback-netcode/plugin.cfg")
 
+[filesystem]
+
+import/fbx/enabled=false
+
 [gui]
 
 common/drop_mouse_on_gui_input_disabled=true
@@ -124,7 +128,7 @@ project/assembly_name="PFighter"
 [network]
 
 rollback/max_buffer_size=12
-rollback/limits/max_state_mismatch_count=1
+rollback/limits/max_state_mismatch_count=30
 rollback/classes/message_serializer="res://code/core/custom_message_serializer.gd"
 
 [physics]

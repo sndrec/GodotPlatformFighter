@@ -9,8 +9,8 @@ func _execute(inFt: Fighter) -> bool:
 		inFt.ftVel.y = inFt.FightTable.InitialVerticalJumpVelocity * inFt.FightTable.VerticalAirJumpMultiplier
 		inFt.ftVel.x = convInput.x * inFt.FightTable.HorizontalAirJumpMultiplier
 		if inFt.ftVel.x >= 0:
-			inFt._change_fighter_state(inFt.find_state_by_name("JumpAerialF"))
+			inFt._change_fighter_state(inFt.find_state_by_name("JumpAerialF"), blendTime, lagTime)
 		else:
-			inFt._change_fighter_state(inFt.find_state_by_name("JumpAerialB"))
+			inFt._change_fighter_state(inFt.find_state_by_name("JumpAerialB"), blendTime, lagTime)
 		return true
 	return false

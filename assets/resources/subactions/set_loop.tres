@@ -1,0 +1,7 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://eg3gtdcpy8ip"]
+
+[ext_resource type="Script" path="res://assets/resources/subactions/set_loop.gd" id="1_4hipr"]
+
+[resource]
+script = ExtResource("1_4hipr")
+LoopCount = 1

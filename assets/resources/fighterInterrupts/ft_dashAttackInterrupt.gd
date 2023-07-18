@@ -1,0 +1,8 @@
+class_name DashAttackInterrupt extends Interrupt
+
+func _execute(inFt: Fighter) -> bool:
+	var mx = inFt.input_controller.get_movement_vector().x
+	if inFt.input_controller.attack_pressed() and absf(mx) > 0.9 and sign(mx) == inFt.facing:
+		inFt._change_fighter_state(inFt.find_state_by_name("AttackDash"), blendTime, lagTime)
+		return true
+	return false

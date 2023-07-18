@@ -1,0 +1,7 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://cxa4nbg23fc5a"]
+
+[ext_resource type="Script" path="res://assets/resources/baseFighterFunctions/ft_processAerialAttack.gd" id="1_aurt7"]
+
+[resource]
+script = ExtResource("1_aurt7")
+landingLagState = "LandingAirN"

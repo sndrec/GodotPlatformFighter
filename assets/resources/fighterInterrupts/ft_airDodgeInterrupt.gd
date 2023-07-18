@@ -6,8 +6,8 @@ func _execute(inFt: Fighter) -> bool:
 		var convInput = Vector2(tempInput.x, -tempInput.y)
 		if convInput.length() > 1:
 			convInput = convInput.normalized()
-		var airDodgeStrength = 3
+		var airDodgeStrength = 4
 		inFt.ftVel = convInput * airDodgeStrength
-		inFt._change_fighter_state(inFt.find_state_by_name("EscapeAir"))
+		inFt._change_fighter_state(inFt.find_state_by_name("EscapeAir"), blendTime, lagTime)
 		return true
 	return false

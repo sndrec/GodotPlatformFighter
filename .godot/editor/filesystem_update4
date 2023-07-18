@@ -1,7 +1,12 @@
 res://default_env.tres
-res://scenes/main.tscn
+res://scenes/char/rook/ft_rook.tscn
 res://assets/shaders/hurtbox.gdshader
+res://code/core/fighter_base.gd
+res://scenes/main.tscn
 res://scenes/stage/battlefield.tscn
 res://scenes/hurtbox.tscn
-res://scenes/char/rook/ft_rook.tscn
-res://code/core/fighter_base.gd
+res://scenes/hurtbox.gd
+res://assets/resources/fighterInterrupts/ft_airDodgeInterrupt.gd
+res://assets/resources/baseFighterFunctions/ft_processAirDodge.gd
+res://code/core/stage_base.gd
+res://scenes/Player.gd

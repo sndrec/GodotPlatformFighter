@@ -1,0 +1,8 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://iohls0rekt11"]
+
+[ext_resource type="Script" path="res://assets/resources/fighterInterrupts/ft_dashAttackInterrupt.gd" id="1_mv5t5"]
+
+[resource]
+script = ExtResource("1_mv5t5")
+blendTime = 0
+lagTime = 0

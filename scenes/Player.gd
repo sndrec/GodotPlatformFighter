@@ -238,15 +238,13 @@ func _take_ownership_of_fighter(inFighter) -> void:
 
 func _save_state() -> Dictionary:
 	return {
-		position = position,
 		curTick = curTick,
 		inputState = inputState.duplicate(),
 		buttonPressTime = buttonPressTime.duplicate(),
-		buttonReleaseTime = buttonReleaseTime.duplicate(),
+		buttonReleaseTime = buttonReleaseTime.duplicate()
 	}
 
 func _load_state(state: Dictionary) -> void:
-	position = state["position"]
 	curTick = state["curTick"]
 	inputState = state["inputState"].duplicate()
 	buttonPressTime = state["buttonPressTime"].duplicate()
