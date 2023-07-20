@@ -1,0 +1,12 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://cx33ql7axbhvs"]
+
+[ext_resource type="Script" path="res://assets/resources/fighterInterrupts/ft_shieldRaiseInterrupt.gd" id="1_csv2q"]
+
+[resource]
+script = ExtResource("1_csv2q")
+blendTime = 0
+lagTime = 0
+startActive = true
+enableTime = 0
+disableTime = 0
+requiredState = 0

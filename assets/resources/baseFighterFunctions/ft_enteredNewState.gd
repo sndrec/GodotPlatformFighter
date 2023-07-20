@@ -3,6 +3,8 @@ class_name EnteredNewState extends FighterFunction
 func _execute(inFt: Fighter):
 	inFt.clear_hitboxes()
 	inFt.unfold_action(inFt.charState.action)
+	inFt.ourShield.active = false
+	inFt.get_node("ShieldSprite").visible = false
 	var hasAnim = inFt.charState.stateAnim != ""
 	if inFt.facing == -1:
 		inFt.rotation = Vector3(0, PI, 0)

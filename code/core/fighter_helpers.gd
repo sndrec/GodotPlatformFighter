@@ -165,7 +165,7 @@ func TestCapsuleCapsuleIntersection(a0: Vector3, a1: Vector3, ar: float, b0: Vec
 
 func TestSphereCapsuleIntersection(a0: Vector3, ar: float, b0: Vector3, b1: Vector3, br: float) -> bool:
 	var radiiSum := ar+br
-	var lineSegmentTest = closest_distance_between_lines(a0, a0, b0, b1)
+	var lineSegmentTest = closest_distance_between_lines(a0, a0 + Vector3(0, 0, 0.001), b0, b1)
 	if lineSegmentTest.Distance <= radiiSum:
 		return true
 	

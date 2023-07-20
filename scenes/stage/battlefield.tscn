@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://co0jwf8vp7l88"]
+[gd_scene load_steps=18 format=3 uid="uid://co0jwf8vp7l88"]
 
 [ext_resource type="Script" path="res://code/core/stage_base.gd" id="1_vqdg2"]
 [ext_resource type="Script" path="res://assets/resources/stage_collision_segment.gd" id="2_2assm"]
@@ -66,34 +66,6 @@ endOffset = Vector2(19.125, 67.5)
 friction = 0.0
 colType = 1
 
-[sub_resource type="Resource" id="Resource_p3vt4"]
-script = ExtResource("2_2assm")
-startOffset = Vector2(-60, 30)
-endOffset = Vector2(-30, 0)
-friction = 0.0
-colType = 0
-
-[sub_resource type="Resource" id="Resource_n8eva"]
-script = ExtResource("2_2assm")
-startOffset = Vector2(30, 0)
-endOffset = Vector2(60, 30)
-friction = 0.0
-colType = 0
-
-[sub_resource type="Resource" id="Resource_c2rru"]
-script = ExtResource("2_2assm")
-startOffset = Vector2(30, 0)
-endOffset = Vector2(0, 25)
-friction = 0.0
-colType = 0
-
-[sub_resource type="Resource" id="Resource_4pg6o"]
-script = ExtResource("2_2assm")
-startOffset = Vector2(20, 30)
-endOffset = Vector2(-20, 30)
-friction = 0.0
-colType = 0
-
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_3m6rq"]
 sky_top_color = Color(0.2, 0.2, 0.2, 1)
 sky_horizon_color = Color(0.0862745, 0.0862745, 0.0862745, 1)
@@ -148,9 +120,8 @@ blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_fn1en")
 
 [node name="battlefield" type="Node3D" groups=["network_sync"]]
-visible = false
 script = ExtResource("1_vqdg2")
-StageCollisionSegments = Array[ExtResource("2_2assm")]([SubResource("Resource_psj1f"), SubResource("Resource_j8tm1"), SubResource("Resource_8bsts"), SubResource("Resource_80gna"), SubResource("Resource_m3c2k"), SubResource("Resource_fymfd"), SubResource("Resource_rbtxv"), SubResource("Resource_vrte7"), SubResource("Resource_uifap"), SubResource("Resource_p3vt4"), SubResource("Resource_n8eva"), SubResource("Resource_c2rru"), SubResource("Resource_4pg6o")])
+StageCollisionSegments = Array[ExtResource("2_2assm")]([SubResource("Resource_psj1f"), SubResource("Resource_j8tm1"), SubResource("Resource_8bsts"), SubResource("Resource_80gna"), SubResource("Resource_m3c2k"), SubResource("Resource_fymfd"), SubResource("Resource_rbtxv"), SubResource("Resource_vrte7"), SubResource("Resource_uifap")])
 StageBounds = Array[Vector2]([Vector2(-250, -150), Vector2(250, 220)])
 CameraBounds = Array[Vector2]([Vector2(-170, -80), Vector2(170, 150)])
 

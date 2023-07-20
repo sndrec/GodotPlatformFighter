@@ -294,9 +294,9 @@ func _ready() -> void:
 	plReady = true
 
 func _get_local_input() -> Dictionary:
-	var movement_vector = Vector2.ZERO
-	var strong_vector = Vector2.ZERO
-	var shield_analog = 0.0
+	var movement_vector := Vector2.ZERO
+	var strong_vector := Vector2.ZERO
+	var shield_analog := 0.0
 	var input_buttons = 0
 	for pad in Input.get_connected_joypads():
 		if !focused:
@@ -306,6 +306,13 @@ func _get_local_input() -> Dictionary:
 		
 		var cstickleftright = Input.get_joy_axis(pad, 2)
 		var cstickupdown = Input.get_joy_axis(pad, 3)
+		
+		var newShield = max(Input.get_joy_axis(pad, 4), Input.get_joy_axis(pad, 5))
+		#newShield = move_toward(newShield, 0, 0.1)
+		#newShield *= (1 / 0.9)
+		
+		if newShield > shield_analog:
+			shield_analog = newShield
 		
 		var new_movement_vector = Vector2(leftright, updown)
 		new_movement_vector = new_movement_vector.move_toward(Vector2.ZERO, 0.05)
@@ -347,7 +354,7 @@ func _get_local_input() -> Dictionary:
 		input["movement_vector"] = movement_vector
 	if strong_vector != Vector2.ZERO:
 		input["strong_vector"] = strong_vector
-	if shield_analog != 0:
+	if shield_analog != 0.0:
 		input["shield_analog"] = shield_analog
 	if input_buttons != 0:
 		input["buttons"] = input_buttons

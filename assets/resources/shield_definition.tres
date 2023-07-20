@@ -1,0 +1,12 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://dsc16oecdhwkk"]
+
+[ext_resource type="Script" path="res://assets/resources/shield_definition.gd" id="1_mg5q2"]
+
+[resource]
+script = ExtResource("1_mg5q2")
+startSizeHardShield = 15.0
+endSizeHardShield = 5.0
+startSizeLightShield = 30.0
+endSizeLightShield = 10.0
+health = 60.0
+velocityOnBreak = 6.0

@@ -95,6 +95,9 @@ var badgeGrid
 ## All possible states for the fighter to exist in.
 @export var States: Array[FighterState] = []
 
+@export var shield: ShieldDefinition
+
+var ourShield: ShieldDefinition
 var ECB: Array = [[Vector2.ZERO, Vector2.ZERO, Vector2.ZERO, Vector2.ZERO], Vector2.ZERO]
 var ECBOld: Array = [[Vector2.ZERO, Vector2.ZERO, Vector2.ZERO, Vector2.ZERO], Vector2.ZERO]
 var ActiveHitboxes: Array[HitboxDefinition] = []
@@ -122,8 +125,8 @@ var internalFrameCounter : int = 0
 var lastHitHurtbox : HurtboxDefinition
 var lastHitHitbox : HitboxDefinition
 var downDesire = "U"
-
-var tempCapsules: Array = []
+var effectiveVel = Vector2.ZERO
+var shieldStun = 0
 
 
 
@@ -147,6 +150,7 @@ func update_ui_percent() -> void:
 func _network_spawn(data: Dictionary) -> void:
 	position = data["position"]
 	input_controller = data["controller"]
+	ourShield = shield.duplicate()
 	_change_fighter_state(States[0])
 
 func respawn_self() -> void:
@@ -171,16 +175,29 @@ func clear_hitboxes() -> void:
 func get_frame_in_state() -> int:
 	return internalFrameCounter - lastStateChange
 
+func get_shield_size() -> float:
+	var shieldPos = FighterSkeleton.get_bone_global_pose(FighterSkeleton.find_bone("Extra"))
+	var globalShieldPos = FighterSkeleton.to_global(shieldPos.origin)
+	var shieldHealthRatio = ourShield.health / ourShield.maxHealth
+	var shieldSizeHard = lerp(ourShield.endSizeHardShield, ourShield.startSizeHardShield, shieldHealthRatio)
+	var shieldSizeLight = lerp(ourShield.endSizeLightShield, ourShield.startSizeLightShield, shieldHealthRatio)
+	var triggerWithDeadzone = move_toward(input_controller.get_trigger_analog_unbuffered(), 0, 0.1) * 1.1111
+	return lerp(shieldSizeLight, shieldSizeHard, triggerWithDeadzone)
+
+func get_shield_position() -> Vector3:
+	var shieldPos = FighterSkeleton.get_bone_global_pose(FighterSkeleton.find_bone("Extra"))
+	return FighterSkeleton.to_global(shieldPos.origin)
+
 func draw_ecb() -> void:
 	var ECBOldBot = Vector3(0,0,0)
 	var ECBOldLeft = Vector3(ECBOld[0][0].x, ECBOld[0][0].y,0)
 	var ECBOldTop = Vector3(0, ECBOld[0][1].y,0)
 	var ECBOldRight = Vector3(ECBOld[0][2].x, ECBOld[0][2].y,0)
 	var oldPos = Vector3(ECBOld[1].x, ECBOld[1].y, 2)
-	DebugDraw.draw_line(oldPos, oldPos + ECBOldLeft, Color(1, 0.5, 0, 1), 0.016666)
-	DebugDraw.draw_line(oldPos + ECBOldLeft, oldPos + ECBOldTop, Color(1, 0.5, 0, 1), 0.016666)
-	DebugDraw.draw_line(oldPos + ECBOldTop, oldPos + ECBOldRight, Color(1, 0.5, 0, 1), 0.016666)
-	DebugDraw.draw_line(oldPos + ECBOldRight, oldPos + ECBOldBot, Color(1, 0.5, 0, 1), 0.016666)
+	DebugDraw.draw_line(oldPos, oldPos + ECBOldLeft, Color(1, 0.25, 0, 1), 0.016666)
+	DebugDraw.draw_line(oldPos + ECBOldLeft, oldPos + ECBOldTop, Color(1, 0.25, 0, 1), 0.016666)
+	DebugDraw.draw_line(oldPos + ECBOldTop, oldPos + ECBOldRight, Color(1, 0.25, 0, 1), 0.016666)
+	DebugDraw.draw_line(oldPos + ECBOldRight, oldPos + ECBOldBot, Color(1, 0.25, 0, 1), 0.016666)
 	
 	var ECBBot = Vector3(0,0,0)
 	var ECBLeft = Vector3(ECB[0][0].x, ECB[0][0].y,0)
@@ -239,11 +256,10 @@ func apply_drag() -> void:
 	ftVel.x = move_toward(ftVel.x, 0, FightTable.AerialFriction * 0.05)
 
 func do_fighter_move_and_collide():
-	var effectiveVel = ftVel + kbVel
 	ftPos += effectiveVel
 	_calculate_ecb(false)
-	try_fighter_ccd()
 	depen_fighter_from_corners(0)
+	try_fighter_ccd()
 	depen_fighter_by_midpoint()
 	draw_ecb()
 	_calculate_ecb(true)
@@ -274,7 +290,7 @@ func depen_fighter_by_midpoint() -> void:
 				var move = -dirFromMid * ((traceLength - colResult.dist) + 0.1)
 				ftPos += move
 				_calculate_ecb(false)
-				if i == 3:
+				if i == 3 and effectiveVel.y < -1:
 					grounded = true
 					#ftVel.y = 0
 
@@ -316,7 +332,7 @@ func depen_fighter_from_corners(iter: int) -> void:
 						closestDist = dist
 						depenDir = i[2]
 			if inside:
-				var side = sign((t - ECBOld[1]).x)
+				var side = sign((t - ECB[1]).x)
 				if side == 1:
 					var test1 = halfSpaces[1]
 					var test2 = halfSpaces[2]
@@ -370,6 +386,8 @@ func try_fighter_ccd() -> void:
 					3:
 						depenDir = Vector2.UP
 				var depenPoint = FHelp.LineIntersection(desP, desP + depenDir, segment.startOffset, segment.endOffset)
+				# todo: just use a regular ray line intersection test, and if it misses,
+				# assume we slid past, and move the player to either t2=0 or t2=1 by the point we're testing
 				if is_nan(depenPoint.x) or is_nan(depenPoint.y) or is_inf(depenPoint.x) or is_inf(depenPoint.y):
 					print("line intersect was NAN")
 					continue
@@ -399,6 +417,7 @@ func construct_hurtboxes():
 		newHurtboxInstance.radius = hurtboxDef.radius
 		instanceCounter += 3
 		FighterSkeleton.add_child(newHurtboxInstance)
+		newHurtboxInstance.position_debug_helpers()
 	var anim = $AnimationPlayer as NetworkAnimationPlayer
 	var oldAnimPos = anim.current_animation_position
 	var frame = int(anim.current_animation_position * 60)
@@ -450,6 +469,7 @@ func construct_hurtboxes():
 		newHitboxInstance.isHitbox = true
 		newHitboxInstance.angle = hitboxDef.kbAngle
 		FighterSkeleton.add_child(newHitboxInstance)
+		newHitboxInstance.position_debug_helpers()
 		instanceCounter += 3
 		for child in newHitboxInstance.get_children():
 			var kfg = child as MeshInstance3D
@@ -526,6 +546,30 @@ func unfold_action(inAction: Array[Subaction]) -> void:
 	#print(Unfolded.size())
 	curSubaction = Unfolded
 
+func blend_pose(anim1: String, anim2: String, frame1: int, frame2: int, blend: float) -> void:
+	var pose1 = []
+	var pose2 = []
+	pose1.resize(FighterSkeleton.get_bone_count())
+	pose2.resize(FighterSkeleton.get_bone_count())
+	Animator.current_animation = anim1
+	Animator.assigned_animation = anim1
+	Animator.seek(float(frame1) / 60, true)
+	update_pose()
+	for i in range(FighterSkeleton.get_bone_count()):
+		pose1[i] = FighterSkeleton.get_bone_pose(i)
+	Animator.current_animation = anim2
+	Animator.assigned_animation = anim2
+	Animator.seek(float(frame2) / 60, true)
+	update_pose()
+	for i in range(FighterSkeleton.get_bone_count()):
+		pose2[i] = FighterSkeleton.get_bone_pose(i)
+	for i in range(FighterSkeleton.get_bone_count()):
+		var blendTransform = pose1[i].interpolate_with(pose2[i], blend)
+		FighterSkeleton.set_bone_pose_position(i, blendTransform.origin)
+		FighterSkeleton.set_bone_pose_rotation(i, blendTransform.basis.get_rotation_quaternion())
+		FighterSkeleton.set_bone_pose_scale(i, blendTransform.basis.get_scale())
+	update_pose()
+
 func _change_fighter_state(inState: FighterState, blend: int = 0, lag: int = 0) -> void:
 	JustChangedState = true
 	##if charState:
@@ -575,19 +619,6 @@ func find_state_by_anim(inAnim: String) -> FighterState:
 func _network_process(input: Dictionary) -> void:
 	pass
 
-func create_display_capsule(inStart: Vector3, inEnd: Vector3, inRad: float, inColor: Color) -> void:
-	var newHurtbox = preload("res://scenes/hurtbox.tscn")
-	var newHurtboxInstance = newHurtbox.instantiate()
-	newHurtboxInstance.startOffset = FighterSkeleton.to_local(inStart)
-	newHurtboxInstance.endOffset = FighterSkeleton.to_local(inEnd)
-	newHurtboxInstance.radius = inRad
-	for child in newHurtboxInstance.get_children():
-		var kfg = child as MeshInstance3D
-		kfg.set_instance_shader_parameter("bubbleColor", inColor)
-	FighterSkeleton.add_child(newHurtboxInstance)
-	tempCapsules.append(newHurtboxInstance)
-	
-
 func do_damage(inHurtbox: HurtboxDefinition, inHitbox: HitboxDefinition, victim: Fighter) -> void:
 	FightersHit.append(victim)
 	for i in range(victim.OnDamageFuncs.size()):
@@ -625,6 +656,14 @@ func check_hitboxes() -> void:
 					alreadyHit = true
 			if alreadyHit:
 				continue
+			if curFighter.ourShield.active:
+				var ss = curFighter.get_shield_size()
+				var sp = curFighter.get_shield_position()
+				var hitShield = FHelp.TestSphereCapsuleIntersection(sp, ss, curHitbox.curGlobalPosition, curHitbox.oldGlobalPosition, curHitbox.radius)
+				if hitShield:
+					FightersHit.append(curFighter)
+					apply_shielded_hit_effects(curFighter, curHitbox)
+					continue
 			for h in range(curFighter.Hurtboxes.size()):
 				var curHurtbox = curFighter.Hurtboxes[h] as HurtboxDefinition
 				var hurtboxBonePose = curFighter.FighterSkeleton.get_bone_global_pose(FighterSkeleton.find_bone(curHurtbox.boneName))
@@ -698,21 +737,39 @@ func update_pose() -> void:
 	for i in range(FighterSkeleton.get_bone_count()):
 		FighterSkeleton.force_update_bone_child_transform(i)
 
+func apply_shielded_hit_effects(inVictim: Fighter, inHitbox: HitboxDefinition) -> void:
+	var d = inHitbox.damage + inHitbox.damageShield
+	var s = max(input_controller.get_trigger_analog_unbuffered(), 0.3)
+	var a = 0.65 * (1 - ((s - 0.3) / 0.7))
+	print(a)
+	inVictim.shieldStun = 200 / 201 * (((d * (a + 0.3)) * 1.5) + 2)
+	var side = sign((inVictim.ftPos - ftPos).x)
+	inVictim.ftVel += Vector2((d * 0.09 + 0.4) * side, 0)
+	ftVel += Vector2((d * 0.04 + 0.025) * -side, 0)
+	var knockBack = FHelp.CalculateKnockback(inHitbox, self, inVictim)
+	var c = 1
+	var e = 1
+	var ourHitlag = floor(c * floor(e * floor(3+inHitbox.damage/3)))
+	hitLag = ourHitlag
+	inVictim.hitLag = ourHitlag
+	inVictim.ourShield.health = max(inVictim.ourShield.health - d, 0)
+	print("shieldstun: " + str(inVictim.shieldStun))
+	print("shield health:" + str(inVictim.ourShield.health))
+
 func fighter_tick() -> void:
 	
+	var tests = []
+	for ft in stage.fighters:
+		tests.append(ft.input_controller.get_trigger_analog_unbuffered())
 	
 	DebugDraw.set_text("ACTION TIMER", "NO ACTION")
 	DebugDraw.set_text("SUBACTION", "NO SUBACTION")
-	for c in tempCapsules:
-		c.queue_free()
 	if input_controller:
-		
-		#if charState.stateName == "Jab1" and get_frame_in_state() > 10 and internalFrameCounter > 100:
-		#	print("HI")
-		
-		if hitLag > 0:
-			hitLag -= 1
+		if hitLag > 0 or shieldStun > 0:
+			if hitLag > 0:
+				hitLag -= 1
 			if hitLag == 0:
+				internalFrameCounter += 1
 				var kbVelPerpendicular = kbVel.rotated(PI * 0.5)
 				var moveRestrict = input_controller.get_movement_vector_unbuffered()
 				if moveRestrict.length() > 1:
@@ -720,10 +777,16 @@ func fighter_tick() -> void:
 				var DirectionalInfluencePower = kbVelPerpendicular.dot(moveRestrict)
 				var maxDIAng = deg_to_rad(18)
 				kbVel = kbVel.rotated(maxDIAng * DirectionalInfluencePower)
+			if shieldStun > 0:
+				shieldStun -= 1
 		else:
 			internalFrameCounter += 1
 			if hitStun > 0:
 				hitStun -= 1
+		
+		if !ourShield.active:
+			ourShield.health = min(ourShield.health + 0.1, ourShield.maxHealth)
+		
 		
 		Animator.seek(float(get_frame_in_state() / 60.0), true)
 		
@@ -755,12 +818,14 @@ func fighter_tick() -> void:
 			#print(TransNMotion)
 			ftVel = FHelp.Vec3to2(TransNMotion)
 		
-		if hitLag == 0:
+		if hitLag == 0 and shieldStun == 0:
 			check_interrupts(0)
 			
 			check_onframe()
 			
 			update_pose()
+			
+			effectiveVel = ftVel + kbVel
 			
 			do_fighter_move_and_collide()
 			
@@ -776,6 +841,9 @@ func fighter_tick() -> void:
 	if ftPos.x < stage.StageBounds[0].x or ftPos.x > stage.StageBounds[1].x or ftPos.y < stage.StageBounds[0].y or ftPos.y > stage.StageBounds[1].y:
 		respawn_self()
 	position = FHelp.Vec2to3(ftPos)
+	#var ss = get_shield_size()
+	#var sp = get_shield_position()
+	#DebugDraw.draw_sphere(sp, ss, Color(0.2, 0.5, 1), 0.01666)
 	if hitStun > 0 and hitLag > 0:
 		var RNG = RandomNumberGenerator.new()
 		position.x += RNG.randf_range(-2, 2)
@@ -790,6 +858,8 @@ func _save_state() -> Dictionary:
 		_ActiveHitboxes = ActiveHitboxes.duplicate(),
 		_curSubaction = curSubaction.duplicate(),
 		_charState = charState.duplicate(),
+		_shield = shield.duplicate(),
+		_ourShield = ourShield.duplicate(),
 		stateFlags = stateFlags,
 		facing = facing,
 		kbVel = kbVel,
@@ -810,6 +880,8 @@ func _save_state() -> Dictionary:
 		lastHitHurtbox = lastHitHurtbox,
 		lastHitHitbox = lastHitHitbox,
 		downDesire = downDesire,
+		effectiveVel = effectiveVel,
+		shieldStun = shieldStun,
 		FightTable = FightTable.duplicate(),
 		ECB_Bones = ECB_Bones.duplicate(),
 		ECB = ECB.duplicate(),
@@ -824,6 +896,8 @@ func _load_state(state: Dictionary) -> void:
 		ActiveHitboxes = state["_ActiveHitboxes"].duplicate()
 		curSubaction = state["_curSubaction"].duplicate()
 		charState = state["_charState"].duplicate()
+		shield = state["_shield"].duplicate()
+		ourShield = state["_ourShield"].duplicate()
 		stateFlags = state["stateFlags"]
 		facing = state["facing"]
 		kbVel = state["kbVel"]
@@ -844,6 +918,8 @@ func _load_state(state: Dictionary) -> void:
 		lastHitHurtbox = state["lastHitHurtbox"]
 		lastHitHitbox = state["lastHitHitbox"]
 		downDesire = state["downDesire"]
+		effectiveVel = state["effectiveVel"]
+		shieldStun = state["shieldStun"]
 		FightTable = state["FightTable"].duplicate()
 		ECB_Bones = state["ECB_Bones"].duplicate()
 		ECB = state["ECB"].duplicate()
