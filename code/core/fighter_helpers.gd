@@ -8,6 +8,54 @@ func Vec2to3(inVec: Vector2) -> Vector3:
 func Vec3to2(inVec: Vector3) -> Vector2:
 	return Vector2(inVec.x, inVec.y)
 
+func solveQuadraticEquation (a0: float, a1: float, a2: float, sign: float = 1) -> float:
+	if (a1 == 0 && a2 == 0):
+		if (a0 == 0):
+			return -1 # convention
+		else:
+			return -32768
+	else: if ( absf( a0*a0*a2/(a1*a1) ) < 1e-20 ):
+		return (- a0 / a1)
+	else:
+		var disc = a1*a1 - 4*a0*a2
+		if (disc < 0):
+			return -32768 # non-real solutions
+		else: if (sign(a1) == sign):
+			# avoid catastrophic cancellation
+			return 2 * a0 / (-a1 - sign * sqrt(disc)) 
+		else:
+			return ((-a1 + sign * sqrt(disc)) / (2 * a2) )
+
+func lineSweepParameters(line1: Array[Vector2], line2: Array[Vector2], flip: bool = false) -> Array[float]:
+	var sign = 1
+	if (flip):
+		sign = -1
+	var x1 = line1[0].x
+	var x2 = line1[1].x
+	var x3 = line2[0].x
+	var x4 = line2[1].x
+	var y1 = line1[0].y
+	var y2 = line1[1].y
+	var y3 = line2[0].y
+	var y4 = line2[1].y
+
+	var a0 = x2 * y1 - x1 * y2
+	var a1 = x4 * y1 - 2 * x2 * y1 + 2 * x1 * y2 - x3 * y2 + x2 * y3 - x1 * y4
+	var a2 = x2 * y1 - x4 * y1 - x1 * y2 + x3 * y2 - x2 * y3 + x4 * y3 + x1 * y4 - x3 * y4
+
+	# s satisfies the equation:	 a0 + a1*s + a2*s^2 = 0
+	var s = solveQuadraticEquation(a0, a1, a2, sign)
+
+	if (s == null || is_nan(s) || s == INF || s < 0 || s > 1):
+		return [] # no real solution
+	else:
+		var t = ( s * (x1 - x3) - x1) / ( x2 - x1 + s * (x1 - x2 - x3 + x4) )
+
+		if (is_nan(t) || t == INF || t < 0 || t > 1):
+			return []
+		else:
+			return [t, s]
+
 func closest_distance_between_lines(a0: Vector3, a1: Vector3, b0: Vector3, b1: Vector3):
 	var result = {Line1Closest = Vector3.ZERO, Line2Closest = Vector3.ZERO, Distance = 0.0}
 	var A := a1 - a0
@@ -154,6 +202,14 @@ func TestRayLineIntersection(a0: Vector2, aDir: Vector2, b0: Vector2, b1: Vector
 		return result
 	
 	return result
+
+func LineIntersection (s1: Vector2, e1: Vector2, s2: Vector2, e2: Vector2) -> Vector2:
+	var d = (s1.x - e1.x) * (s2.y - e2.y) - (s1.y - e1.y) * (s2.x - e2.x)
+	var a = s1.x * e1.y - s1.y * e1.x
+	var b = s2.x * e2.y - s2.y * e2.x
+	var x = (a * (s2.x - e2.x) - (s1.x - e1.x) * b) / d
+	var y = (a * (s2.y - e2.y) - (s1.y - e1.y) * b) / d
+	return Vector2(x, y)
 
 func CalculateKnockback(inHitbox: HitboxDefinition, attacker: Fighter, victim: Fighter) -> float:
 	var p = victim.percentage

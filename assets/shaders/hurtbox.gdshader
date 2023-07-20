@@ -1,5 +1,5 @@
 shader_type spatial;
-render_mode unshaded, blend_add, depth_test_disabled;
+render_mode unshaded, blend_add, depth_test_disabled, cull_front;
 
 instance uniform vec3 bubbleColor = vec3(0.1, 0.1, 0.0);
 

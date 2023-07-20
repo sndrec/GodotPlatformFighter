@@ -6,7 +6,7 @@ func _execute(inFt: Fighter):
 		return
 	inFt.ftVel.y = 0
 	inFt.jumps = 0
-	var tempInput = inFt.input_controller.get_movement_vector()
+	var tempInput = inFt.input_controller.get_movement_vector_unbuffered()
 	var convInput = Vector3(tempInput.x, -tempInput.y, 0)
 	if inFt.get_frame_in_state() < inFt.InterruptableTime:
 		inFt.apply_traction()

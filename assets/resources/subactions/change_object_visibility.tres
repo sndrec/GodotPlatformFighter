@@ -1,0 +1,8 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://cu2dqkdspoffb"]
+
+[ext_resource type="Script" path="res://assets/resources/subactions/change_object_visibility.gd" id="1_cfefm"]
+
+[resource]
+script = ExtResource("1_cfefm")
+objectName = ""
+visibility = true

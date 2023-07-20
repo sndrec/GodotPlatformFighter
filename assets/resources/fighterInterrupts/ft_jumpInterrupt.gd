@@ -10,8 +10,8 @@ func _execute(inFt: Fighter) -> bool:
 			inFt.ftVel.y = inFt.FightTable.MaximumShorthopVerticalVelocity
 		inFt.set_fighter_flag(12, false)
 		inFt.ftVel.x *= inFt.FightTable.GroundToAirJumpMomentumMultiplier
-		if absf(inFt.ftVel.x) < inFt.FightTable.InitialHorizontalJumpVelocity or sign(inFt.input_controller.get_movement_vector().x) != inFt.facing:
-			inFt.ftVel.x = inFt.FightTable.InitialHorizontalJumpVelocity * inFt.input_controller.get_movement_vector().x
+		if absf(inFt.ftVel.x) < inFt.FightTable.InitialHorizontalJumpVelocity or sign(inFt.input_controller.get_movement_vector_unbuffered().x) != inFt.facing:
+			inFt.ftVel.x = inFt.FightTable.InitialHorizontalJumpVelocity * inFt.input_controller.get_movement_vector_unbuffered().x
 		if sign(inFt.ftVel.x) == inFt.facing:
 			inFt._change_fighter_state(inFt.find_state_by_name("JumpF"), blendTime, lagTime)
 		else:

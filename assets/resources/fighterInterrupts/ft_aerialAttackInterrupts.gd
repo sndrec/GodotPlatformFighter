@@ -3,8 +3,8 @@ class_name AerialAttackInterrupts extends Interrupt
 var aerialInputTests = [[Vector2(1, 0), "AttackAirF"], [Vector2(-1, 0), "AttackAirB"], [Vector2(0, -1), "AttackAirHi"], [Vector2(0, 1), "AttackAirLw"]]
 
 func _execute(inFt: Fighter) -> bool:
-	var inp = inFt.input_controller.get_movement_vector()
-	var cst = inFt.input_controller.get_cstick_vector()
+	var inp = inFt.input_controller.get_movement_vector_unbuffered()
+	var cst = inFt.input_controller.get_cstick_vector_unbuffered()
 	inp.x *= inFt.facing
 	cst.x *= inFt.facing
 	var inpn = inp.normalized()
@@ -21,10 +21,13 @@ func _execute(inFt: Fighter) -> bool:
 			desiredAerial = curTest[1]
 	if desiredAerial:
 		inFt.set_fighter_flag(1, true)
+		if atk:
+			inFt.input_controller.clear_attack_pressed()
 		inFt._change_fighter_state(inFt.find_state_by_name(desiredAerial), 0, 0)
 		return true
 	if atk:
 		inFt.set_fighter_flag(1, true)
+		inFt.input_controller.clear_attack_pressed()
 		inFt._change_fighter_state(inFt.find_state_by_name("AttackAirN"), 0, 0)
 		return true
 	return false

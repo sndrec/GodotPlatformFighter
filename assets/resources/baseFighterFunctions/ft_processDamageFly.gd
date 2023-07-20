@@ -14,4 +14,4 @@ func _execute(inFt: Fighter):
 		if inFt.grounded:
 			inFt._change_fighter_state(inFt.find_state_by_name("DownBound"), 4, 0)
 		else:
-			AirMovement._execute(inFt, true)
+			inFt._change_fighter_state(inFt.find_state_by_name("DamageFall"), 4, 0)

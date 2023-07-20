@@ -1,13 +1,20 @@
-[gd_scene load_steps=7 format=3 uid="uid://cyovp5f4v7kp7"]
+[gd_scene load_steps=8 format=3 uid="uid://cyovp5f4v7kp7"]
 
 [ext_resource type="Script" path="res://code/core/stage_base.gd" id="1_mp2ee"]
 [ext_resource type="Script" path="res://assets/resources/stage_collision_segment.gd" id="2_g0nmq"]
 
 [sub_resource type="Resource" id="Resource_psj1f"]
 script = ExtResource("2_g0nmq")
-startOffset = Vector2(0, 10)
-endOffset = Vector2(0, -10)
+startOffset = Vector2(-50, 0)
+endOffset = Vector2(50, 0)
 friction = 1.0
+colType = 0
+
+[sub_resource type="Resource" id="Resource_7n821"]
+script = ExtResource("2_g0nmq")
+startOffset = Vector2(13, 5)
+endOffset = Vector2(14, 7)
+friction = 0.0
 colType = 0
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_3m6rq"]
@@ -29,7 +36,9 @@ glow_enabled = true
 
 [node name="battlefield" type="Node3D" groups=["network_sync"]]
 script = ExtResource("1_mp2ee")
-StageCollisionSegments = Array[ExtResource("2_g0nmq")]([SubResource("Resource_psj1f")])
+StageCollisionSegments = Array[ExtResource("2_g0nmq")]([SubResource("Resource_psj1f"), SubResource("Resource_7n821")])
+StageBounds = Array[Vector2]([Vector2(-180, -110), Vector2(180, 150)])
+CameraBounds = Array[Vector2]([Vector2(-150, -80), Vector2(150, 120)])
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(-0.22325, -0.844168, 0.487381, 0, 0.5, 0.866025, -0.974761, 0.19334, -0.111625, 0, 0, 0)
@@ -37,3 +46,5 @@ shadow_enabled = true
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_5jdps")
+
+[node name="CameraController" type="Node3D" parent="."]

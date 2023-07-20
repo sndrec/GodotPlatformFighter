@@ -10,4 +10,4 @@ func _execute(inFt: Fighter) -> void:
 	inFt.Animator.seek(lerpf(0, lagLength, timeTilCompletion), true)
 	inFt.update_pose()
 	if inFt.get_frame_in_state() > landingLagFrames:
-		inFt._change_fighter_state(inFt.find_state_by_name(endingState))
+		inFt._change_fighter_state(inFt.find_state_by_name(endingState), 0, 0)

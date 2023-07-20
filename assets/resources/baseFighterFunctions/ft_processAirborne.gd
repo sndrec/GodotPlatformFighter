@@ -7,7 +7,7 @@ func _execute(inFt: Fighter, allowControl: bool = true):
 		else:
 			inFt._change_fighter_state(inFt.find_state_by_name("Landing"), 0, inFt.FightTable.NormalLandingLag)
 	
-	var tempInput = inFt.input_controller.get_movement_vector()
+	var tempInput = inFt.input_controller.get_movement_vector_unbuffered()
 	var convInput = Vector3(tempInput.x, -tempInput.y, 0)
 	
 	if allowControl:

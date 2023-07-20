@@ -1,7 +1,7 @@
 class_name DownInterrupt extends Interrupt
 
 func _execute(inFt: Fighter) -> bool:
-	var inp = inFt.input_controller.get_movement_vector()
+	var inp = inFt.input_controller.get_movement_vector_unbuffered()
 	inp.x *= inFt.facing
 	var up = inp.y < -0.85
 	var forward = inp.x > 0.85

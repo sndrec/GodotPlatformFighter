@@ -9,6 +9,7 @@ var lastConstruct = 0.0
 @onready var FighterSkeleton: Skeleton3D = $Skeleton3D
 var input_controller: BasePlayer
 var stage: PFStage
+var badgeGrid
 @export var UpdateHurtboxes = false:
 	set(inHurt):
 		construct_hurtboxes()
@@ -74,13 +75,22 @@ var stage: PFStage
 @export var ECB_Bones: Array[String] = []
 
 ## Function to run any time the fighter enters a new state.
-@export var OnStateEnterFunc: FighterFunction
+## Args:
+## inFighter: The fighter whose state is changing.
+@export var OnStateEnterFuncs: Array[FighterFunction] = []
 
 ## Function to run on every frame.
-@export var OnFrameFunc: FighterFunction
+## Args:
+## inFighter: The fighter this function is being called on.
+@export var OnFrameFuncs: Array[FighterFunction] = []
 
-## Function to run when this fighter takes damage.
-@export var OnDamage: FighterFunction
+## Function to run when this fighter takes damage.[br]
+## Args:[br]
+## inFighter: The fighter being damaged.[br]
+## inHurtbox: The hurtbox that was struck, belonging to the victim.[br]
+## inHurtbox: The hitbox that struck the hurtbox, belonging to the attacker.[br]
+## attacker: The fighter which hit the victim.
+@export var OnDamageFuncs: Array[FighterFunction] = []
 
 ## All possible states for the fighter to exist in.
 @export var States: Array[FighterState] = []
@@ -113,6 +123,8 @@ var lastHitHurtbox : HurtboxDefinition
 var lastHitHitbox : HitboxDefinition
 var downDesire = "U"
 
+var tempCapsules: Array = []
+
 
 
 func _ready():
@@ -129,10 +141,22 @@ func set_fighter_flag(num: int, inBool: bool) -> void:
 		var flag = 1 << num
 		stateFlags = stateFlags ^ flag
 
+func update_ui_percent() -> void:
+	badgeGrid.update_player_percent(self)
+
 func _network_spawn(data: Dictionary) -> void:
 	position = data["position"]
 	input_controller = data["controller"]
 	_change_fighter_state(States[0])
+
+func respawn_self() -> void:
+	percentage = 0
+	ftPos = Vector2.ZERO
+	kbVel = Vector2.ZERO
+	_change_fighter_state(find_state_by_name("Wait"), 0, 0)
+	_calculate_ecb(true)
+	_calculate_ecb(true)
+	update_ui_percent()
 
 func _process(delta: float) -> void:
 	if Engine.is_editor_hint():
@@ -148,17 +172,27 @@ func get_frame_in_state() -> int:
 	return internalFrameCounter - lastStateChange
 
 func draw_ecb() -> void:
+	var ECBOldBot = Vector3(0,0,0)
+	var ECBOldLeft = Vector3(ECBOld[0][0].x, ECBOld[0][0].y,0)
+	var ECBOldTop = Vector3(0, ECBOld[0][1].y,0)
+	var ECBOldRight = Vector3(ECBOld[0][2].x, ECBOld[0][2].y,0)
+	var oldPos = Vector3(ECBOld[1].x, ECBOld[1].y, 2)
+	DebugDraw.draw_line(oldPos, oldPos + ECBOldLeft, Color(1, 0.5, 0, 1), 0.016666)
+	DebugDraw.draw_line(oldPos + ECBOldLeft, oldPos + ECBOldTop, Color(1, 0.5, 0, 1), 0.016666)
+	DebugDraw.draw_line(oldPos + ECBOldTop, oldPos + ECBOldRight, Color(1, 0.5, 0, 1), 0.016666)
+	DebugDraw.draw_line(oldPos + ECBOldRight, oldPos + ECBOldBot, Color(1, 0.5, 0, 1), 0.016666)
+	
 	var ECBBot = Vector3(0,0,0)
-	var ECBLeft = Vector3(ECB[0].x, ECB[1].y * 0.5,0)
-	var ECBTop = Vector3(0, ECB[1].y,0)
-	var ECBRight = Vector3(ECB[2].x, ECB[1].y * 0.5,0)
-	DebugDraw.draw_line(position, position + ECBLeft, Color(1, 1, 0, 1), 0.016666)
-	DebugDraw.draw_line(position + ECBLeft, position + ECBTop, Color(1, 1, 0, 1), 0.016666)
-	DebugDraw.draw_line(position + ECBTop, position + ECBRight, Color(1, 1, 0, 1), 0.016666)
-	DebugDraw.draw_line(position + ECBRight, position + ECBBot, Color(1, 1, 0, 1), 0.016666)
+	var ECBLeft = Vector3(ECB[0][0].x, ECB[0][0].y,0)
+	var ECBTop = Vector3(0, ECB[0][1].y,0)
+	var ECBRight = Vector3(ECB[0][2].x, ECB[0][2].y,0)
+	var newPos = FHelp.Vec2to3(ftPos)
+	DebugDraw.draw_line(newPos, newPos + ECBLeft, Color(1, 1, 0, 1), 0.016666)
+	DebugDraw.draw_line(newPos + ECBLeft, newPos + ECBTop, Color(1, 1, 0, 1), 0.016666)
+	DebugDraw.draw_line(newPos + ECBTop, newPos + ECBRight, Color(1, 1, 0, 1), 0.016666)
+	DebugDraw.draw_line(newPos + ECBRight, newPos + ECBBot, Color(1, 1, 0, 1), 0.016666)
 
-func _calculate_ecb() -> void:
-	ECBOld = ECB.duplicate(true)
+func _calculate_ecb(updateOld: bool) -> void:
 	var highestPos = 0.0
 	var leftmostPos = 0.0
 	var rightmostPos = 0.0
@@ -180,6 +214,8 @@ func _calculate_ecb() -> void:
 	ECB[0][1] = ECBTop
 	ECB[0][2] = ECBRight
 	ECB[1] = ftPos
+	if updateOld:
+		ECBOld = ECB.duplicate(true)
 
 enum SurfaceSlope{
 	WALL,
@@ -190,7 +226,7 @@ enum SurfaceSlope{
 func get_surface_type(inNormal: Vector2) -> int:
 	if inNormal.y > 0.1:
 		return SurfaceSlope.FLOOR
-	else: if inNormal.y > -0.9:
+	else: if inNormal.y > -0.85:
 		return SurfaceSlope.WALL
 	return SurfaceSlope.CEIL
 
@@ -202,57 +238,145 @@ func apply_drag() -> void:
 	ftVel.x -= ftVel.x * FightTable.AerialFriction
 	ftVel.x = move_toward(ftVel.x, 0, FightTable.AerialFriction * 0.05)
 
-func do_fighter_move_and_collide() -> void:
-	var collided = false
-	var count = 0
-	ftPos += ftVel + kbVel
-	_calculate_ecb()
+func do_fighter_move_and_collide():
+	var effectiveVel = ftVel + kbVel
+	ftPos += effectiveVel
+	_calculate_ecb(false)
+	try_fighter_ccd()
+	depen_fighter_from_corners(0)
+	depen_fighter_by_midpoint()
+	draw_ecb()
+	_calculate_ecb(true)
+
+func depen_fighter_by_midpoint() -> void:
 	for i in range(ECB[0].size()):
-		#adjPoint is each ECB point in global space
-		#print(ECB[count])
-		var adjPointOld = ECBOld[0][count] + ECBOld[1]
-		var adjPoint = ECB[0][count] + ftPos
-		var pointDir = adjPoint - adjPointOld
-		var traceLength = pointDir.length()
-		pointDir = pointDir.normalized()
-		#DebugDraw.draw_line(FHelp.Vec2to3(ECBMiddle), FHelp.Vec2to3(ECBMiddle + adjPoint), Color(1, 0, 0), 0.01666)
 		for s in range(stage.StageCollisionSegments.size()):
 			var segment = stage.StageCollisionSegments[s]
-			if segment.colType == StageCollisionSegment.collisionType.semisolid and count == 3 and ftVel.y > 0:
+			if segment.colType == StageCollisionSegment.collisionType.semisolid:
 				continue
-			
 			var segDir = (segment.endOffset - segment.startOffset).rotated(PI * 0.5).normalized()
-			
-			if (count == 0 or count == 2) and get_surface_type(segDir) != SurfaceSlope.WALL:
-				#print("exit on 0 or 2")
+			if (i == 0 or i == 2) and get_surface_type(segDir) == SurfaceSlope.FLOOR:
 				continue
-			if count == 1 and get_surface_type(segDir) != SurfaceSlope.CEIL:
-				#print("exit on 1")
+			if i == 1 and get_surface_type(segDir) != SurfaceSlope.CEIL:
 				continue
-			if count == 3 and get_surface_type(segDir) != SurfaceSlope.FLOOR:
-				#print("exit on 3")
+			if i == 3 and get_surface_type(segDir) != SurfaceSlope.FLOOR:
 				continue
-			#print("let's test on " + str(count))
-			var colResult = FHelp.TestRayLineIntersection(adjPointOld, pointDir, segment.startOffset, segment.endOffset)
-			#DebugDraw.draw_line(FHelp.Vec2to3(adjPointOld), FHelp.Vec2to3(adjPoint), Color(255, 255, 0), 0.016666)
+			var mid = ftPos + ECB[0][1] * 0.5
+			var dirFromMid = (ECB[0][i] - ECB[0][1] * 0.5).normalized()
+			if dirFromMid.dot(segDir) > 0:
+				continue
+			var traceLength = (ECB[0][i] - ECB[0][1] * 0.5).length()
+			#DebugDraw.draw_line(FHelp.Vec2to3(mid), FHelp.Vec2to3(mid + dirFromMid * traceLength), Color(1, 1, 1), 0.016666)
+			var colResult = FHelp.TestRayLineIntersection(mid, dirFromMid, segment.startOffset, segment.endOffset)
 			if colResult.hit and colResult.dist <= traceLength:
-				if count == 3 and ftVel.y > 0:
-						continue
-				if count != 3 and segment.colType == StageCollisionSegment.collisionType.semisolid:
-					continue
-				#hitpoint is in global space
-				var hitPoint = adjPointOld + pointDir * colResult.dist
-				#DebugDraw.draw_sphere(FHelp.Vec2to3(hitPoint), 0.5, Color(1, 0, 0), 0.25)
-				#print(adjPoint.length())
-				#print(colResult.dist)
-				var offsetToContact = ECB[0][count]
-				
-				ftPos = hitPoint + -offsetToContact + segDir * 0.1
-				if count == 3:
+				var hitPoint = mid + dirFromMid * colResult.dist
+				DebugDraw.draw_sphere(FHelp.Vec2to3(hitPoint), 0.2, Color(1, 0, 0), 0.01666)
+				var move = -dirFromMid * ((traceLength - colResult.dist) + 0.1)
+				ftPos += move
+				_calculate_ecb(false)
+				if i == 3:
 					grounded = true
 					#ftVel.y = 0
-		count += 1
-	_calculate_ecb()
+
+func depen_fighter_from_corners(iter: int) -> void:
+	if iter > 4: return
+	var halfSpaces = [[ECB[0][0], ECB[0][1]], [ECB[0][1], ECB[0][2]], [ECB[0][2], ECB[0][3]], [ECB[0][3], ECB[0][0]]]
+	halfSpaces = halfSpaces.duplicate(true)
+	var depenned = false
+	for i in range(halfSpaces.size()):
+		halfSpaces[i].append((halfSpaces[i][1] - halfSpaces[i][0]).normalized().rotated(PI * -0.5))
+		halfSpaces[i][0] += ftPos
+		halfSpaces[i][1] += ftPos
+	for s in range(stage.StageCollisionSegments.size()):
+		if depenned:
+			break
+		var seg = stage.StageCollisionSegments[s]
+		if seg.colType == StageCollisionSegment.collisionType.semisolid:
+			continue
+		var tests = [seg.startOffset, seg.endOffset]
+		for test in range(tests.size()):
+			var t = tests[test]
+			if depenned:
+				break
+			var inside = true
+			var closestDist = 1000
+			var depenDir = Vector2.UP
+			for hs in range(halfSpaces.size()):
+				var i = halfSpaces[hs]
+				if depenned:
+					break
+				#DebugDraw.draw_line(FHelp.Vec2to3(i[0]), FHelp.Vec2to3(i[1]), Color(0, 1, 1), 0.01666)
+				#DebugDraw.draw_arrow_line(FHelp.Vec2to3((i[0] + i[1]) * 0.5), FHelp.Vec2to3((i[0] + i[1]) * 0.5 + i[2] * 2.5), Color(0, 1, 1), 0.4, 0.01666)
+				var offset = t - i[0]
+				var dist = offset.dot(i[2])
+				if dist < 0:
+					inside = false
+				else:
+					if dist < closestDist:
+						closestDist = dist
+						depenDir = i[2]
+			if inside:
+				var side = sign((t - ECBOld[1]).x)
+				if side == 1:
+					var test1 = halfSpaces[1]
+					var test2 = halfSpaces[2]
+					var intersect1 = FHelp.LineIntersection(t, t + Vector2.RIGHT, test1[0], test1[1]) - t
+					var intersect2 = FHelp.LineIntersection(t, t + Vector2.RIGHT, test2[0], test2[1]) - t
+					ftPos += Vector2.LEFT * min(intersect1.length(), intersect2.length())
+					depenned = true
+				else:
+					var test1 = halfSpaces[0]
+					var test2 = halfSpaces[3]
+					var intersect1 = FHelp.LineIntersection(t, t + Vector2.LEFT, test1[0], test1[1]) - t
+					var intersect2 = FHelp.LineIntersection(t, t + Vector2.LEFT, test2[0], test2[1]) - t
+					ftPos += Vector2.RIGHT * min(intersect1.length() + 0.1, intersect2.length() + 0.1)
+					depenned = true
+				#DebugDraw.draw_sphere(FHelp.Vec2to3(t), 0.2, Color(1, 0, 0), 0.01666)
+	if depenned:
+		_calculate_ecb(false)
+		depen_fighter_from_corners(iter + 1)
+
+func try_fighter_ccd() -> void:
+	for p in range(ECB[0].size()):
+		# 0 = left
+		# 1 = top
+		# 2 = right
+		# 3 = bot
+		var oldP = ECBOld[0][p] + ECBOld[1]
+		var desP = ECB[0][p] + ECB[1]
+		var dir = (desP - oldP).normalized()
+		var len = oldP.distance_to(desP)
+		for s in range(stage.StageCollisionSegments.size()):
+			var segment = stage.StageCollisionSegments[s]
+			var segDir = (segment.endOffset - segment.startOffset).rotated(PI * 0.5).normalized()
+			if dir.dot(segDir) > 0:
+				continue
+			if get_surface_type(segDir) == SurfaceSlope.WALL and (p != 0 and p != 2):
+				continue
+			if get_surface_type(segDir) == SurfaceSlope.FLOOR and (p == 1):
+				continue
+			if get_surface_type(segDir) == SurfaceSlope.CEIL and (p == 3):
+				continue
+			
+			var colResult = FHelp.TestRayLineIntersection(oldP, dir, segment.startOffset, segment.endOffset)
+			if colResult.hit and colResult.dist <= len:
+				var hitPoint = oldP + dir * colResult.dist
+				var depenDir = Vector2.LEFT
+				match p:
+					1:
+						depenDir = Vector2.DOWN
+					2:
+						depenDir = Vector2.RIGHT
+					3:
+						depenDir = Vector2.UP
+				var depenPoint = FHelp.LineIntersection(desP, desP + depenDir, segment.startOffset, segment.endOffset)
+				if is_nan(depenPoint.x) or is_nan(depenPoint.y) or is_inf(depenPoint.x) or is_inf(depenPoint.y):
+					print("line intersect was NAN")
+					continue
+				ftPos += -depenDir * ((depenPoint - desP).length() + 0.1)
+				if p == 3:
+					grounded = true
+				_calculate_ecb(false)
 
 func construct_hurtboxes():
 	if !Engine.is_editor_hint():
@@ -414,8 +538,8 @@ func _change_fighter_state(inState: FighterState, blend: int = 0, lag: int = 0) 
 	charState = inState
 	blendTime = blend
 	InterruptableTime = lag
-	if OnStateEnterFunc:
-		OnStateEnterFunc._execute(self)
+	for i in range(OnStateEnterFuncs.size()):
+		OnStateEnterFuncs[i]._execute(self)
 	for i in range(charState.onEnterState.size()):
 		charState.onEnterState[i]._execute(self)
 	
@@ -451,10 +575,23 @@ func find_state_by_anim(inAnim: String) -> FighterState:
 func _network_process(input: Dictionary) -> void:
 	pass
 
+func create_display_capsule(inStart: Vector3, inEnd: Vector3, inRad: float, inColor: Color) -> void:
+	var newHurtbox = preload("res://scenes/hurtbox.tscn")
+	var newHurtboxInstance = newHurtbox.instantiate()
+	newHurtboxInstance.startOffset = FighterSkeleton.to_local(inStart)
+	newHurtboxInstance.endOffset = FighterSkeleton.to_local(inEnd)
+	newHurtboxInstance.radius = inRad
+	for child in newHurtboxInstance.get_children():
+		var kfg = child as MeshInstance3D
+		kfg.set_instance_shader_parameter("bubbleColor", inColor)
+	FighterSkeleton.add_child(newHurtboxInstance)
+	tempCapsules.append(newHurtboxInstance)
+	
+
 func do_damage(inHurtbox: HurtboxDefinition, inHitbox: HitboxDefinition, victim: Fighter) -> void:
 	FightersHit.append(victim)
-	if victim.OnDamage:
-		victim.OnDamage._execute(victim, inHurtbox, inHitbox, self)
+	for i in range(victim.OnDamageFuncs.size()):
+		victim.OnDamageFuncs[i]._execute(victim, inHurtbox, inHitbox, self)
 
 func check_hitboxes() -> void:
 	for i in range(ActiveHitboxes.size()):
@@ -474,6 +611,10 @@ func check_hitboxes() -> void:
 			curHitbox.oldGlobalPosition = curHitbox.curGlobalPosition
 			curHitbox.curGlobalPosition = globalPos
 		
+		if curHitbox.oldGlobalPosition == curHitbox.curGlobalPosition:
+			curHitbox.oldGlobalPosition += Vector3(0, 0.001, 0)
+		
+		#DebugDraw.draw_sphere(curHitbox.curGlobalPosition, curHitbox.radius, Color(1, 0, 0), 0.01666)
 		for f in range(stage.fighters.size()):
 			var curFighter = stage.fighters[f] as Fighter
 			if curFighter == self:
@@ -483,7 +624,7 @@ func check_hitboxes() -> void:
 				if FightersHit[t] == curFighter:
 					alreadyHit = true
 			if alreadyHit:
-				break
+				continue
 			for h in range(curFighter.Hurtboxes.size()):
 				var curHurtbox = curFighter.Hurtboxes[h] as HurtboxDefinition
 				var hurtboxBonePose = curFighter.FighterSkeleton.get_bone_global_pose(FighterSkeleton.find_bone(curHurtbox.boneName))
@@ -505,6 +646,18 @@ func check_interrupts(recursion: int) -> void:
 	var interruptedPrematurely = false
 	if get_frame_in_state() >= InterruptableTime and hitStun == 0:
 		for i in range(charState.interrupts.size()):
+			if charState.interrupts[i].startActive:
+				if charState.interrupts[i].disableTime != 0 and get_frame_in_state() >= charState.interrupts[i].disableTime:
+					if charState.interrupts[i].enableTime == 0:
+						continue
+					else:
+						if get_frame_in_state() < charState.interrupts[i].enableTime:
+							continue
+			else:
+				if get_frame_in_state() < charState.interrupts[i].enableTime:
+					continue
+				if charState.interrupts[i].disableTime != 0 and get_frame_in_state() >= charState.interrupts[i].disableTime:
+					continue
 			if grounded:
 				if charState.interrupts[i].requiredState == Interrupt.groundRequire.OnlyAirborne:
 					continue
@@ -513,19 +666,24 @@ func check_interrupts(recursion: int) -> void:
 					continue
 			var interrupted = charState.interrupts[i]._execute(self)
 			if interrupted: 
+				#print("Interrupted into " + charState.stateName)
 				interruptedPrematurely = true
 				break
 	if interruptedPrematurely:
 		check_interrupts(recursion + 1)
 
 func check_onframe() -> void:
+	for i in range(OnFrameFuncs.size()):
+		if JustChangedState:
+			JustChangedState = false
+			check_onframe()
+			break
+		OnFrameFuncs[i]._execute(self)
 	for i in range(charState.onFrame.size()):
 		if JustChangedState:
 			JustChangedState = false
 			check_onframe()
 			break
-		if OnFrameFunc:
-			OnFrameFunc._execute(self)
 		charState.onFrame[i]._execute(self)
 
 func execute_current_action(actionFrame: int) -> void:
@@ -543,6 +701,10 @@ func update_pose() -> void:
 func fighter_tick() -> void:
 	
 	
+	DebugDraw.set_text("ACTION TIMER", "NO ACTION")
+	DebugDraw.set_text("SUBACTION", "NO SUBACTION")
+	for c in tempCapsules:
+		c.queue_free()
 	if input_controller:
 		
 		#if charState.stateName == "Jab1" and get_frame_in_state() > 10 and internalFrameCounter > 100:
@@ -552,7 +714,7 @@ func fighter_tick() -> void:
 			hitLag -= 1
 			if hitLag == 0:
 				var kbVelPerpendicular = kbVel.rotated(PI * 0.5)
-				var moveRestrict = input_controller.get_movement_vector()
+				var moveRestrict = input_controller.get_movement_vector_unbuffered()
 				if moveRestrict.length() > 1:
 					moveRestrict = moveRestrict.normalized()
 				var DirectionalInfluencePower = kbVelPerpendicular.dot(moveRestrict)
@@ -568,7 +730,7 @@ func fighter_tick() -> void:
 		if get_frame_in_state() > Animator.current_animation_length * 60 and charState.onAnimFinishedState != "":
 			_change_fighter_state(find_state_by_name(charState.onAnimFinishedState))
 		
-		#DebugDraw.set_text("Input Velocity: ", str(input_controller.get_movement_vector_velocity()))
+		#DebugDraw.set_text("Input Velocity: ", str(input_controller.get_movement_vector_velocity_unbuffered()))
 		
 		if get_frame_in_state() < blendTime:
 			for i in range(FighterSkeleton.get_bone_count()):
@@ -611,21 +773,14 @@ func fighter_tick() -> void:
 		
 		if kbVel.length() > 0:
 			DebugDraw.set_text("KBVEL", kbVel)
-	#draw_ecb()
-	if ftPos.x < -90 or ftPos.x > 90 or ftPos.y < -60 or ftPos.y > 60:
-		percentage = 0
-		ftPos = Vector2(0, 0)
-		_change_fighter_state(find_state_by_name("Wait"), 0, 0)
-		_calculate_ecb()
-		_calculate_ecb()
+	if ftPos.x < stage.StageBounds[0].x or ftPos.x > stage.StageBounds[1].x or ftPos.y < stage.StageBounds[0].y or ftPos.y > stage.StageBounds[1].y:
+		respawn_self()
 	position = FHelp.Vec2to3(ftPos)
 	if hitStun > 0 and hitLag > 0:
 		var RNG = RandomNumberGenerator.new()
 		position.x += RNG.randf_range(-2, 2)
 	DebugDraw.set_text("BUTTONS", input_controller.shield_down())
 	DebugDraw.set_text("STATE", charState.stateName)
-	DebugDraw.set_text("ACTION TIMER", "NO ACTION")
-	DebugDraw.set_text("SUBACTION", "NO SUBACTION")
 	DebugDraw.set_text("FLAGS: ", str(stateFlags))
 
 func _save_state() -> Dictionary:

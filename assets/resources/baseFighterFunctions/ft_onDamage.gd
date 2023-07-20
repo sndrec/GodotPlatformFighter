@@ -81,3 +81,4 @@ func _execute(inFt: Fighter, inHurtbox: HurtboxDefinition, inHitbox: HitboxDefin
 	inFt.Animator.seek(0, true)
 	inFt.update_pose()
 	inFt.grounded = false
+	inFt.badgeGrid.update_player_percent(inFt)

@@ -6,9 +6,12 @@ extends Node2D
 @onready var port_field = $CanvasLayer/ConnectionPanel/GridContainer/PortField
 @onready var message_label = $CanvasLayer/MessageLabel
 @onready var sync_lost_label = $CanvasLayer/SyncLostLabel
+@onready var stage_camera = $SubViewportContainer/SubViewport/StageCamera
 
 const BattlefieldStage = preload("res://scenes/stage/battlefield.tscn")
 const RookFighter = preload("res://scenes/char/rook/ft_rook.tscn")
+
+var curStage
 
 func _ready() -> void:
 	get_tree().get_multiplayer().connect("peer_connected", Callable(self, "_on_multiplayer_peer_connected"))
@@ -73,10 +76,21 @@ func _on_SyncManager_sync_started() -> void:
 	var Fighter2 = SyncManager.spawn("Fighter2", $StageContainer, RookFighter, {"position" = Vector3(0, 0, 0), "controller" = $ClientPlayer})
 	Fighter1.stage = Stage
 	Fighter2.stage = Stage
+	Fighter1.badgeGrid = %BadgeGrid
+	Fighter2.badgeGrid = %BadgeGrid
 	$ServerPlayer.controlledFighter = Fighter1
 	$ClientPlayer.controlledFighter = Fighter2
 	Stage.fighters.append(Fighter1)
 	Stage.fighters.append(Fighter2)
+	curStage = Stage
+	%BadgeGrid.stage = Stage
+	%BadgeGrid.update_player_percent(Fighter1)
+	%BadgeGrid.update_player_percent(Fighter2)
+
+func _process(delta: float) -> void:
+	if curStage and curStage != null and curStage.has_node("CameraController"):
+		var cameraController = curStage.get_node("CameraController")
+		stage_camera.transform = cameraController.transform
 
 func _on_SyncManager_sync_stopped() -> void:
 	pass

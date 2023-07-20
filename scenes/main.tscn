@@ -1,7 +1,18 @@
-[gd_scene load_steps=3 format=3 uid="uid://b0svhhnsmri7i"]
+[gd_scene load_steps=6 format=3 uid="uid://b0svhhnsmri7i"]
 
 [ext_resource type="Script" path="res://scenes/main.gd" id="1"]
 [ext_resource type="PackedScene" uid="uid://cmldfdcel45x6" path="res://scenes/player.tscn" id="2"]
+[ext_resource type="Script" path="res://scenes/BadgeGrid.gd" id="2_kek1c"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_2v67l"]
+font_size = 48
+outline_size = 8
+outline_color = Color(0, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_opfyq"]
+font_size = 48
+outline_size = 8
+outline_color = Color(0, 0, 0, 1)
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1")
@@ -80,6 +91,54 @@ offset_bottom = 31.0
 text = "Regaining sync...
 "
 
+[node name="CharBadgeContainer" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -250.0
+offset_top = -96.0
+offset_right = 250.0
+grow_horizontal = 2
+grow_vertical = 0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="BadgeGrid" type="GridContainer" parent="CanvasLayer/CharBadgeContainer"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+columns = 2
+script = ExtResource("2_kek1c")
+
+[node name="P1Percent" type="Label" parent="CanvasLayer/CharBadgeContainer/BadgeGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Hi
+"
+label_settings = SubResource("LabelSettings_2v67l")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="P2Percent" type="Label" parent="CanvasLayer/CharBadgeContainer/BadgeGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Hello
+"
+label_settings = SubResource("LabelSettings_opfyq")
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="ServerPlayer" parent="." instance=ExtResource("2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.65542, 0, -2.50913)
 
@@ -89,19 +148,22 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.81464, 0, 1.11866)
 [node name="SubViewportContainer" type="SubViewportContainer" parent="."]
 anchors_preset = 9
 anchor_bottom = 1.0
-offset_right = 1024.0
-offset_bottom = 600.0
+offset_right = 1150.0
+offset_bottom = 645.0
+grow_vertical = 2
 
 [node name="SubViewport" type="SubViewport" parent="SubViewportContainer"]
 handle_input_locally = false
 size = Vector2i(1150, 645)
 render_target_update_mode = 4
 
-[node name="Camera3D" type="Camera3D" parent="SubViewportContainer/SubViewport"]
+[node name="StageCamera" type="Camera3D" parent="SubViewportContainer/SubViewport"]
+unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 37.6288, 250)
-fov = 25.0
+fov = 24.0
 
 [node name="StageContainer" type="Node3D" parent="."]
+unique_name_in_owner = true
 
 [connection signal="pressed" from="CanvasLayer/ConnectionPanel/GridContainer/ServerButton" to="." method="_on_ServerButton_pressed"]
 [connection signal="pressed" from="CanvasLayer/ConnectionPanel/GridContainer/ClientButton" to="." method="_on_ClientButton_pressed"]

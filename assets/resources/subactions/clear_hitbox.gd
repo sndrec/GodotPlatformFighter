@@ -2,7 +2,7 @@
 
 class_name ClearHitboxByID extends Subaction
 
-var SubactionName = "Clear Hitboxe by ID"
+var SubactionName = "Clear Hitbox by ID"
 
 @export var ID_To_Clear: int = 0
 
