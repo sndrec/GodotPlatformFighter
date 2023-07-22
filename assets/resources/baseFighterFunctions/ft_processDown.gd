@@ -15,14 +15,17 @@ func _execute(inFt: Fighter):
 				#DebugDraw.draw_line(FHelp.Vec2to3(testStartPos), FHelp.Vec2to3(testStartPos + Vector2.UP * testDist), Color(0, 0, 255), 0.01666)
 				if traceResult.hit and traceResult.dist <= testDist:
 					hitAny = true
-					#print("we hit yay")
-					var hitPos = testStartPos + Vector2.UP * traceResult.dist
-					inFt.ftPos = hitPos + Vector2.DOWN * 0.1
+					if inFt.kbVel.y == 0:
+						#print("we hit yay")
+						var hitPos = testStartPos + Vector2.UP * traceResult.dist
+						inFt.ftPos = hitPos + Vector2.DOWN * 0.1
 		if !hitAny:
 			#print("Dident hit anything.")
 			inFt.grounded = false
 			inFt._change_fighter_state(inFt.find_state_by_name("Fall"), 4, 0)
 	else:
+		if inFt.charState.stateName == "DownWait":
+			inFt._change_fighter_state(inFt.find_state_by_name("Fall"), 4, 0)
 		inFt.apply_drag()
 		var terminalVelocity = -inFt.FightTable.TerminalVelocity
 		inFt.ftVel.y = maxf(inFt.ftVel.y - inFt.FightTable.Gravity, -inFt.FightTable.TerminalVelocity)

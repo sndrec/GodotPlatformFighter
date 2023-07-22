@@ -3,7 +3,7 @@ class_name AirJumpInterrupt extends Interrupt
 func _execute(inFt: Fighter) -> bool:
 	var tempInput = inFt.input_controller.get_movement_vector_unbuffered()
 	var convInput = Vector3(tempInput.x, -tempInput.y, 0)
-	if inFt.input_controller.jump_pressed() and inFt.jumps < inFt.FightTable.NumberOfJumps:
+	if inFt.input_controller.jump_pressed() and inFt.jumps < inFt.FightTable.MaxJumps:
 		inFt.input_controller.clear_jump_pressed()
 		inFt.grounded = false
 		inFt.jumps += 1

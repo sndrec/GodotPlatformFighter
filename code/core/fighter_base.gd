@@ -19,54 +19,16 @@ var badgeGrid
 ## Try to match them closely to the shape of your character.
 @export var Hurtboxes: Array[HurtboxDefinition] = []
 
+## Stats for this fighter's shield.
+## Do not modify this through code! It won't affect gameplay!
+## If you want to affect your shield at runtime, use 'ourShield' instead.
+@export var shield: ShieldDefinition
+
 ## These are important properties, used to determine the characteristics of your fighter.
 ## You can control things such as movement speed and acceleration, weight, falling speed, and more.
-@export var FightTable: Dictionary = {
-	InitialWalkSpeed = 0.08,
-	WalkAcceleration = 0.0,
-	MaxWalkSpeed = 0.73,
-	WalkAnimationSpeed = 1.0,
-	MidWalkPoint = 0.445,
-	FastWalkSpeed = 0.72,
-	Friction = 0.07,
-	InitialDashSpeed = 1.45,
-	StopTurnInitialSpeedA = 0.08,
-	StopTurnInitialSpeedB = 0.01,
-	InitialRunSpeed = 1.5,
-	RunAnimationScale = 1.0,
-	DashDurationBeforeRunning = 3,
-	JumpStartupLag = 5,
-	InitialHorizontalJumpVelocity = 0.9,
-	InitialVerticalJumpVelocity = 2.9,
-	GroundToAirJumpMomentumMultiplier = 0.85,
-	MaximumShorthopHorizontalVelocity = 1.8,
-	MaximumShorthopVerticalVelocity = 2.0,
-	VerticalAirJumpMultiplier = 0.95,
-	HorizontalAirJumpMultiplier = 1.0,
-	NumberOfJumps = 2,
-	Gravity = 0.13,
-	TerminalVelocity = 0.5,
-	AerialSpeed = 0.046,
-	AerialFriction = 0.02,
-	MaxAerialHorizontalSpeed = 0.95,
-	AirFriction = 0.02,
-	FastFallTerminalVelocity = 2.7,
-	FramesToChangeDirectionOnStandingTurn = 4,
-	Weight = 109.0,
-	ModelScale = 1.0,
-	ShieldSize = 15.0,
-	ShieldBreakInitialVelocity = 3.4,
-	LedgeJumpHorizontalVelocity = 1.0,
-	LedgeJumpVerticalVelocity = 3.4,
-	NormalLandingLag = 4,
-	NairLandingLag = 25,
-	FairLandingLag = 25,
-	BairLandingLag = 25,
-	UairLandingLag = 25,
-	DairLandingLag = 25,
-	WallJumpHorizontalVelocity = 1.3,
-	WallJumpVerticalVelocity = 2.6
-}
+## Do not modify this through code! It won't affect gameplay!
+## If you want to affect FightTable at runtime, use 'ourFightTable' instead.
+@export var FightTable: FighterPropertyTable
 
 ## Names of the bones that should be used to calculate the ECB,
 ## a special structure used to create the character's collision.
@@ -95,38 +57,41 @@ var badgeGrid
 ## All possible states for the fighter to exist in.
 @export var States: Array[FighterState] = []
 
-@export var shield: ShieldDefinition
-
+var ledgeBox = Rect2(Vector2(-16, 6), Vector2(32, 12))
+var currentLedge: StageLedgePoint = preload("res://assets/resources/stage_ledge_point.tres")
 var ourShield: ShieldDefinition
+var ourFightTable: FighterPropertyTable
 var ECB: Array = [[Vector2.ZERO, Vector2.ZERO, Vector2.ZERO, Vector2.ZERO], Vector2.ZERO]
 var ECBOld: Array = [[Vector2.ZERO, Vector2.ZERO, Vector2.ZERO, Vector2.ZERO], Vector2.ZERO]
 var ActiveHitboxes: Array[HitboxDefinition] = []
 var curSubaction: Array[Array]
 var stateFlags: int = 0
 var FightersHit: Array[Fighter] = []
-var facing = 1
-var kbVel = Vector2.ZERO
-var ftVel = Vector2.ZERO
-var ftPos = Vector2.ZERO
-var grounded = false
-var hitLag = 0
-var hitStun = 0
-var percentage = 0.0
+var facing : int = 1
+var kbVel : Vector2 = Vector2.ZERO
+var ftVel : Vector2 = Vector2.ZERO
+var animVel : Vector2 = Vector2.ZERO
+var ftPos : Vector2 = Vector2.ZERO
+var grounded : bool = false
+var hitLag : int = 0
+var hitStun : int = 0
+var percentage : float = 0.0
 var charState: FighterState
 var oldPose : Array[Transform3D] = []
 var blendTime : int = 0
-var lastStateChange = 0
-var TransNPhysics = false
+var lastStateChange : int = 0
+var TransNPhysics : bool = false
 var TransNOldPos: Vector3 = Vector3.ZERO
-var InterruptableTime = 0
+var InterruptableTime : int = 0
 var jumps : int = 0
 var JustChangedState : bool = false
 var internalFrameCounter : int = 0
 var lastHitHurtbox : HurtboxDefinition
 var lastHitHitbox : HitboxDefinition
-var downDesire = "U"
-var effectiveVel = Vector2.ZERO
-var shieldStun = 0
+var downDesire : String = "U"
+var effectiveVel : Vector2 = Vector2.ZERO
+var shieldStun : int = 0
+var lastTimeOnLedge : int = 0
 
 
 
@@ -151,6 +116,7 @@ func _network_spawn(data: Dictionary) -> void:
 	position = data["position"]
 	input_controller = data["controller"]
 	ourShield = shield.duplicate()
+	ourFightTable = FightTable.duplicate()
 	_change_fighter_state(States[0])
 
 func respawn_self() -> void:
@@ -255,8 +221,8 @@ func apply_drag() -> void:
 	ftVel.x -= ftVel.x * FightTable.AerialFriction
 	ftVel.x = move_toward(ftVel.x, 0, FightTable.AerialFriction * 0.05)
 
-func do_fighter_move_and_collide():
-	ftPos += effectiveVel
+func do_fighter_move_and_collide(desiredPos: Vector2):
+	ftPos = desiredPos
 	_calculate_ecb(false)
 	depen_fighter_from_corners(0)
 	try_fighter_ccd()
@@ -393,6 +359,9 @@ func try_fighter_ccd() -> void:
 					continue
 				ftPos += -depenDir * ((depenPoint - desP).length() + 0.1)
 				if p == 3:
+					if !grounded and get_frame_in_state() > 2 and kbVel.length_squared() > 0:
+						print("Projecting KBvel!")
+						kbVel = kbVel + segDir * -kbVel.dot(segDir)
 					grounded = true
 				_calculate_ecb(false)
 
@@ -769,14 +738,20 @@ func fighter_tick() -> void:
 			if hitLag > 0:
 				hitLag -= 1
 			if hitLag == 0:
+				print("Doing DI")
 				internalFrameCounter += 1
-				var kbVelPerpendicular = kbVel.rotated(PI * 0.5)
+				DebugDraw.draw_arrow_line(FHelp.Vec2to3(ftPos), FHelp.Vec2to3(ftPos + kbVel.normalized() * 32), Color(0.3, 0.3, 0.3), 0.1, false, 3)
+				var kbVelPerpendicular = kbVel.rotated(PI * 0.5).normalized()
 				var moveRestrict = input_controller.get_movement_vector_unbuffered()
+				moveRestrict.y *= -1
 				if moveRestrict.length() > 1:
 					moveRestrict = moveRestrict.normalized()
 				var DirectionalInfluencePower = kbVelPerpendicular.dot(moveRestrict)
+				var DIColor = Color(1, lerp(1, 0, abs(DirectionalInfluencePower)), lerp(1, 0, abs(DirectionalInfluencePower)))
 				var maxDIAng = deg_to_rad(18)
 				kbVel = kbVel.rotated(maxDIAng * DirectionalInfluencePower)
+				DebugDraw.draw_arrow_line(FHelp.Vec2to3(ftPos), FHelp.Vec2to3(ftPos + moveRestrict * 32), Color(0, 1, 0), 0.1, false, 3)
+				DebugDraw.draw_arrow_line(FHelp.Vec2to3(ftPos), FHelp.Vec2to3(ftPos + kbVel.normalized() * 32), DIColor, 0.1, false, 3)
 			if shieldStun > 0:
 				shieldStun -= 1
 		else:
@@ -804,30 +779,34 @@ func fighter_tick() -> void:
 				FighterSkeleton.set_bone_pose_scale(i, blendTransform.basis.get_scale())
 		
 		var TransNMotion = Transform3D.IDENTITY
+		var TransN = FighterSkeleton.find_bone("TransN")
 		
 		if TransNPhysics:
-			var TransN = FighterSkeleton.find_bone("TransN")
 			var TransNNewTransform = FighterSkeleton.get_bone_global_pose(TransN)
 			var TransNPos = FighterSkeleton.to_global(TransNNewTransform.origin)
 			TransNPos -= FHelp.Vec2to3(ftPos)
 			TransNMotion = TransNPos - TransNOldPos
 			TransNOldPos = TransNPos
-			FighterSkeleton.set_bone_pose_position(TransN, Vector3.ZERO)
-			FighterSkeleton.set_bone_pose_rotation(TransN, Quaternion.IDENTITY)
-			FighterSkeleton.set_bone_pose_scale(TransN, Vector3.ONE)
 			#print(TransNMotion)
-			ftVel = FHelp.Vec3to2(TransNMotion)
+			animVel = FHelp.Vec3to2(TransNMotion)
+		else:
+			ftVel += animVel
+			animVel = Vector2.ZERO
 		
 		if hitLag == 0 and shieldStun == 0:
 			check_interrupts(0)
 			
 			check_onframe()
 			
+			FighterSkeleton.set_bone_pose_position(TransN, Vector3.ZERO)
+			FighterSkeleton.set_bone_pose_rotation(TransN, Quaternion.IDENTITY)
+			FighterSkeleton.set_bone_pose_scale(TransN, Vector3.ONE)
+			
 			update_pose()
 			
-			effectiveVel = ftVel + kbVel
+			effectiveVel = ftVel + kbVel + animVel
 			
-			do_fighter_move_and_collide()
+			do_fighter_move_and_collide(ftPos + effectiveVel)
 			
 			if get_frame_in_state() != 0:
 				execute_current_action(get_frame_in_state())
@@ -835,8 +814,14 @@ func fighter_tick() -> void:
 			kbVel = kbVel.move_toward(Vector2.ZERO, 0.051)
 			
 			check_hitboxes()
+		else:
+			FighterSkeleton.set_bone_pose_position(TransN, Vector3.ZERO)
+			FighterSkeleton.set_bone_pose_rotation(TransN, Quaternion.IDENTITY)
+			FighterSkeleton.set_bone_pose_scale(TransN, Vector3.ONE)
+			update_pose()
 		
 		if kbVel.length() > 0:
+			DebugDraw.draw_arrow_line(FHelp.Vec2to3(ftPos), FHelp.Vec2to3(ftPos + kbVel * 8), Color(1, 1, 1), 0.1, false, 0.016666)
 			DebugDraw.set_text("KBVEL", kbVel)
 	if ftPos.x < stage.StageBounds[0].x or ftPos.x > stage.StageBounds[1].x or ftPos.y < stage.StageBounds[0].y or ftPos.y > stage.StageBounds[1].y:
 		respawn_self()
@@ -847,6 +832,13 @@ func fighter_tick() -> void:
 	if hitStun > 0 and hitLag > 0:
 		var RNG = RandomNumberGenerator.new()
 		position.x += RNG.randf_range(-2, 2)
+		var SDIPulse = input_controller.get_movement_vector_velocity_unbuffered()
+		var SDIPulseAllow = SDIPulse.dot(input_controller.get_movement_vector_unbuffered()) > 0
+		SDIPulse.y *= -1
+		SDIPulse *= 1.5
+		if SDIPulseAllow:
+			do_fighter_move_and_collide(ftPos + SDIPulse)
+		grounded = false
 	DebugDraw.set_text("BUTTONS", input_controller.shield_down())
 	DebugDraw.set_text("STATE", charState.stateName)
 	DebugDraw.set_text("FLAGS: ", str(stateFlags))
@@ -860,10 +852,15 @@ func _save_state() -> Dictionary:
 		_charState = charState.duplicate(),
 		_shield = shield.duplicate(),
 		_ourShield = ourShield.duplicate(),
+		_currentLedge = currentLedge.duplicate(),
+		_ourFightTable = ourFightTable.duplicate(),
+		lastTimeOnLedge = lastTimeOnLedge,
+		ledgeBox = ledgeBox,
 		stateFlags = stateFlags,
 		facing = facing,
 		kbVel = kbVel,
 		ftVel = ftVel,
+		animVel = animVel,
 		ftPos = ftPos,
 		grounded = grounded,
 		hitLag = hitLag,
@@ -882,7 +879,6 @@ func _save_state() -> Dictionary:
 		downDesire = downDesire,
 		effectiveVel = effectiveVel,
 		shieldStun = shieldStun,
-		FightTable = FightTable.duplicate(),
 		ECB_Bones = ECB_Bones.duplicate(),
 		ECB = ECB.duplicate(),
 		ECBOld = ECBOld.duplicate(),
@@ -898,10 +894,15 @@ func _load_state(state: Dictionary) -> void:
 		charState = state["_charState"].duplicate()
 		shield = state["_shield"].duplicate()
 		ourShield = state["_ourShield"].duplicate()
+		currentLedge = state["_currentLedge"].duplicate()
+		ourFightTable = state["_ourFightTable"].duplicate()
+		lastTimeOnLedge = state["lastTimeOnLedge"]
+		ledgeBox = state["ledgeBox"]
 		stateFlags = state["stateFlags"]
 		facing = state["facing"]
 		kbVel = state["kbVel"]
 		ftVel = state["ftVel"]
+		animVel = state["animVel"]
 		ftPos = state["ftPos"]
 		grounded = state["grounded"]
 		hitLag = state["hitLag"]
@@ -920,7 +921,6 @@ func _load_state(state: Dictionary) -> void:
 		downDesire = state["downDesire"]
 		effectiveVel = state["effectiveVel"]
 		shieldStun = state["shieldStun"]
-		FightTable = state["FightTable"].duplicate()
 		ECB_Bones = state["ECB_Bones"].duplicate()
 		ECB = state["ECB"].duplicate()
 		ECBOld = state["ECBOld"].duplicate()

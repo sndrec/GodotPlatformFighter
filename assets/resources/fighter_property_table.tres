@@ -1,0 +1,31 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://bu8hablybk5ym"]
+
+[ext_resource type="Script" path="res://assets/resources/fighter_property_table.gd" id="1_mj5ek"]
+
+[resource]
+script = ExtResource("1_mj5ek")
+Gravity = 0.13
+TerminalVelocity = 2
+FastFallTerminalVelocity = 2.7
+Weight = 109.0
+MaxJumps = 2
+InitialWalkSpeed = 0.08
+InitialDashSpeed = 1.45
+InitialRunSpeed = 1.6
+WalkAcceleration = 0.08
+MidWalkPoint = 0.6
+FastWalkSpeed = 1.1
+MaxWalkSpeed = 1.2
+WalkAnimationSpeed = 1.0
+Friction = 0.16
+RunAnimationScale = 1.0
+AerialSpeed = 0.075
+AerialFriction = 0.15
+MaxAerialHorizontalSpeed = 1.4
+InitialHorizontalJumpVelocity = 0.9
+InitialVerticalJumpVelocity = 3.15
+MaximumShorthopVerticalVelocity = 2.0
+VerticalAirJumpMultiplier = 1.0
+GroundToAirJumpMomentumMultiplier = 0.92
+MaximumGroundToAirJumpHorizontalVelocity = 1.8
+HorizontalAirJumpMultiplier = 1.0

@@ -5,7 +5,7 @@ func _execute(inFt: Fighter, allowControl: bool = true):
 		if inFt.ftVel.y > -0.1:
 			inFt._change_fighter_state(inFt.find_state_by_name("Wait"), 8, 0)
 		else:
-			inFt._change_fighter_state(inFt.find_state_by_name("Landing"), 0, inFt.FightTable.NormalLandingLag)
+			inFt._change_fighter_state(inFt.find_state_by_name("Landing"), 0, 4)
 	
 	var tempInput = inFt.input_controller.get_movement_vector_unbuffered()
 	var convInput = Vector3(tempInput.x, -tempInput.y, 0)
@@ -13,7 +13,7 @@ func _execute(inFt: Fighter, allowControl: bool = true):
 	if allowControl:
 		if absf(convInput.x) >= 0.01:
 			var desiredSpeed = inFt.FightTable.MaxAerialHorizontalSpeed * absf(convInput.x)
-			inFt.ftVel.x = move_toward(inFt.ftVel.x, desiredSpeed * sign(convInput.x), inFt.FightTable.AerialSpeed)
+			inFt.ftVel.x = move_toward(inFt.ftVel.x, desiredSpeed * sign(convInput.x), inFt.FightTable.AerialAcceleration)
 		else:
 			inFt.apply_drag()
 	else:

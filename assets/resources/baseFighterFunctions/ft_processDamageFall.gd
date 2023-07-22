@@ -9,6 +9,7 @@ func _execute(inFt: Fighter) -> void:
 	else:
 		inFt.downDesire = "U"
 	if inFt.grounded:
+		inFt.kbVel.y = 0
 		inFt._change_fighter_state(inFt.find_state_by_name("DownBound"), 4, 0)
 	else:
 		AirMovement._execute(inFt, true)

@@ -222,6 +222,7 @@ func CalculateKnockback(inHitbox: HitboxDefinition, attacker: Fighter, victim: F
 	var knockback = ((p * 0.1) + ((p * d) * 0.05))
 	knockback *= (200 / (w + 100)) * 1.4
 	knockback += 18
-	knockback *= inHitbox.kbGrowth * 0.01
-	knockback += inHitbox.kbBase
+	if inHitbox.kbWeightSet == 0.0:
+		knockback *= inHitbox.kbGrowth * 0.01
+		knockback += inHitbox.kbBase
 	return knockback

@@ -83,7 +83,9 @@ func grab_and_try_clear_from_buffer(inKey: String) -> bool:
 	return p
 
 func check_vector_above_threshold(inVec1: Vector2, inVec2: Vector2):
-	return inVec1.normalized().dot(inVec1 - inVec2) > 0.0
+	# inVec1 is usually going to be the input in inputstate
+	# inVec2 is the threshold we are comparing that input against
+	return inVec2.normalized().dot(inVec1 - inVec2) > 0.0
 
 func check_vector_in_buffer_above_threshold(inKey: String, inVec: Vector2) -> bool:
 	for state in inputBuffer:

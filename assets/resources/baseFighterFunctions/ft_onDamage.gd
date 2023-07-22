@@ -17,10 +17,7 @@ func _execute(inFt: Fighter, inHurtbox: HurtboxDefinition, inHitbox: HitboxDefin
 	var kbVelMult = 1.0
 	if !inHitbox.kbAngleFixed and side != attacker.facing:
 		kbAngle.x *= -1
-	if inFt.grounded and kbAngle.y < 0:
-		kbVelMult = 0.8
-		kbAngle.y *= -1
-	inFt.downDesire = "U"
+	var oldFacing = inFt.facing
 	inFt.facing = -side
 	inFt.ftVel = Vector2.ZERO
 	inFt.kbVel = kbAngle * knockBack * 0.03 * kbVelMult
@@ -30,11 +27,15 @@ func _execute(inFt: Fighter, inHurtbox: HurtboxDefinition, inHitbox: HitboxDefin
 	var ourHitlag = floor(c * floor(e * floor(3+inHitbox.damage/3)))
 	inFt.hitLag = ourHitlag
 	attacker.hitLag = ourHitlag
+	print("Knockback: " + str(knockBack))
+	print("Hitstun: " + str(inFt.hitStun))
+	print("Hitlag: " + str(ourHitlag))
 	var desiredAnim = "DamageN1"
 	if knockBack < 80:
-		if DownStates.has(inFt.charState.stateName) and knockBack <= 15:
+		if DownStates.has(inFt.charState.stateName) and knockBack <= 25:
 			inFt._change_fighter_state(inFt.find_state_by_name("DownDamage"), 0, 0)
 			desiredAnim = "DownDamage" + inFt.downDesire
+			inFt.facing = oldFacing
 		else:
 			inFt._change_fighter_state(inFt.find_state_by_name("Damage"), 0, 0)
 			if inFt.grounded:
@@ -68,6 +69,9 @@ func _execute(inFt: Fighter, inHurtbox: HurtboxDefinition, inHitbox: HitboxDefin
 					desiredAnim = "DamageAir3"
 	else:
 		inFt._change_fighter_state(inFt.find_state_by_name("DamageFly"), 0, 0)
+		if inFt.grounded and inFt.kbVel.y < 0:
+			print("Started grounded, and spiked - let's invert the y.")
+			inFt.kbVel.y *= -0.8
 		if inHurtbox.bodyType == HurtboxDefinition.hurtboxBodyType.High:
 			desiredAnim = "DamageFlyHi"
 		else: if inHurtbox.bodyType == HurtboxDefinition.hurtboxBodyType.Middle:
@@ -78,7 +82,7 @@ func _execute(inFt: Fighter, inHurtbox: HurtboxDefinition, inHitbox: HitboxDefin
 			desiredAnim = "DamageFlyTop"
 	inFt.Animator.current_animation = desiredAnim
 	inFt.Animator.assigned_animation = desiredAnim
-	inFt.Animator.seek(0, true)
+	inFt.Animator.seek(1 / 60, true)
 	inFt.update_pose()
 	inFt.grounded = false
 	inFt.badgeGrid.update_player_percent(inFt)

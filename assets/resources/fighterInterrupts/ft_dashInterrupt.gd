@@ -10,6 +10,7 @@ func _execute(inFt: Fighter) -> bool:
 				return false
 		else:
 			inFt.facing *= -1
+		inFt.ftVel.x = inFt.FightTable.InitialDashSpeed * inFt.facing
 		inFt.input_controller.clear_movement_vector_velocity_axis_above_threshold("x", 0.4 * sign(bufferedCheck2))
 		inFt._change_fighter_state(inFt.find_state_by_name("Dash"), blendTime, lagTime)
 		return true

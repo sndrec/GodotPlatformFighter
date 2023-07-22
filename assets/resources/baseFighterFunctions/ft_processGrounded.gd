@@ -26,8 +26,9 @@ func _execute(inFt: Fighter):
 			if traceResult.hit and traceResult.dist <= testDist:
 				hitAny = true
 				#print("we hit yay")
-				var hitPos = testStartPos + Vector2.UP * traceResult.dist
-				inFt.ftPos = hitPos + Vector2.DOWN * 0.1
+				if inFt.kbVel.y == 0:
+					var hitPos = testStartPos + Vector2.UP * traceResult.dist
+					inFt.ftPos = hitPos + Vector2.DOWN * 0.1
 	if !hitAny:
 		#print("Dident hit anything.")
 		inFt.grounded = false
