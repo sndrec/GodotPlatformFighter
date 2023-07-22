@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="StageLedgePoint" load_steps=2 format=3 uid="uid://btvw24myg22hi"]
+
+[ext_resource type="Script" path="res://assets/resources/stage_ledge_point.gd" id="1_cxyqr"]
+
+[resource]
+script = ExtResource("1_cxyqr")
+pos = Vector2(0, 0)
+dir = 0

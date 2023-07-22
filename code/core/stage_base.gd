@@ -6,6 +6,8 @@ class_name PFStage
 
 @export var StageCollisionSegments: Array[StageCollisionSegment] = []
 
+@export var StageLedgePoints: Array[StageLedgePoint] = []
+
 @export var StageBounds: Array[Vector2] = [Vector2.ZERO, Vector2.ZERO]
 
 @export var CameraBounds: Array[Vector2] = [Vector2.ZERO, Vector2.ZERO]
@@ -47,6 +49,11 @@ func _process(delta):
 		DebugDraw.draw_line(topRightB, botRightB, Color(1, 0.25, 0.25), 0.01666)
 		DebugDraw.draw_line(botRightB, botLeftB, Color(1, 0.25, 0.25), 0.01666)
 		DebugDraw.draw_line(botLeftB, topLeftB, Color(1, 0.25, 0.25), 0.01666)
+	for point in StageLedgePoints:
+		var pointCol = Color(1, 0.1, 0.1)
+		if point.dir == StageLedgePoint.LedgeDir.LEFT:
+			pointCol = Color(0.1, 0.1, 1)
+		DebugDraw.draw_sphere(FHelp.Vec2to3(point.pos), 2, pointCol, 0.016666)
 
 func _network_process(input: Dictionary) -> void:
 	var targetPoint := Vector2.ZERO

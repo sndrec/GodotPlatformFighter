@@ -1,0 +1,14 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://b6dvelckkjdkx"]
+
+[ext_resource type="Script" path="res://assets/resources/fighterInterrupts/ft_ledgeGrabInterrupt.gd" id="1_nybdl"]
+
+[resource]
+script = ExtResource("1_nybdl")
+GrabDirection = null
+CanGrabWhen = null
+blendTime = null
+lagTime = null
+startActive = null
+enableTime = null
+disableTime = null
+requiredState = null
