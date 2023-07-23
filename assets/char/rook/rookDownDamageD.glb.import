@@ -31,7 +31,7 @@ import_script/path=""
 _subresources={
 "animations": {
 "DownDamageD": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/rookDownDamageD.tres",
 "settings/loop_mode": 0,

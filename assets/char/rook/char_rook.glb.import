@@ -31,7 +31,7 @@ import_script/path=""
 _subresources={
 "animations": {
 "DamageAir1": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/RookDamageAir1.tres",
 "settings/loop_mode": 0,
@@ -1830,7 +1830,7 @@ _subresources={
 "slices/amount": null
 },
 "DamageAir2": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/RookDamageAir2.tres",
 "settings/loop_mode": 0,
@@ -3629,7 +3629,7 @@ _subresources={
 "slices/amount": null
 },
 "DamageAir3": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/RookDamageAir3.tres",
 "settings/loop_mode": 0,
@@ -5428,7 +5428,7 @@ _subresources={
 "slices/amount": null
 },
 "DamageFlyHi": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/RookDamageFlyHi.tres",
 "settings/loop_mode": 0,
@@ -7227,7 +7227,7 @@ _subresources={
 "slices/amount": null
 },
 "DamageFlyLw": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/RookDamageFlyLw.tres",
 "settings/loop_mode": 0,
@@ -9026,7 +9026,7 @@ _subresources={
 "slices/amount": null
 },
 "DamageFlyN": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/RookDamageFlyN.tres",
 "settings/loop_mode": 0,
@@ -10825,7 +10825,7 @@ _subresources={
 "slices/amount": null
 },
 "DamageFlyRoll": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/RookDamageFlyRoll.tres",
 "settings/loop_mode": 0,
@@ -12624,7 +12624,7 @@ _subresources={
 "slices/amount": null
 },
 "DamageFlyTop": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/RookDamageFlyTop.tres",
 "settings/loop_mode": 0,
@@ -14423,7 +14423,7 @@ _subresources={
 "slices/amount": null
 },
 "DamageHi1": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/RookDamageHi1.tres",
 "settings/loop_mode": 0,
@@ -16222,7 +16222,7 @@ _subresources={
 "slices/amount": null
 },
 "DamageHi2": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/RookDamageHi2.tres",
 "settings/loop_mode": 0,
@@ -18021,7 +18021,7 @@ _subresources={
 "slices/amount": null
 },
 "DamageHi3": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/RookDamageHi3.tres",
 "settings/loop_mode": 0,
@@ -19820,7 +19820,7 @@ _subresources={
 "slices/amount": null
 },
 "DamageLw1": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/RookDamageLw1.tres",
 "settings/loop_mode": 0,
@@ -21619,7 +21619,7 @@ _subresources={
 "slices/amount": null
 },
 "DamageLw2": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/RookDamageLw2.tres",
 "settings/loop_mode": 0,
@@ -23418,7 +23418,7 @@ _subresources={
 "slices/amount": null
 },
 "DamageLw3": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/RookDamageLw3.tres",
 "settings/loop_mode": 0,
@@ -25217,7 +25217,7 @@ _subresources={
 "slices/amount": null
 },
 "DamageN1": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/RookDamageN1.tres",
 "settings/loop_mode": 0,
@@ -27016,7 +27016,7 @@ _subresources={
 "slices/amount": null
 },
 "DamageN2": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/RookDamageN2.tres",
 "settings/loop_mode": 0,
@@ -28815,7 +28815,7 @@ _subresources={
 "slices/amount": null
 },
 "DamageN3": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/RookDamageN3.tres",
 "settings/loop_mode": 0,
@@ -30614,7 +30614,7 @@ _subresources={
 "slices/amount": null
 },
 "TurnRun": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/RookTurnRun.tres",
 "settings/loop_mode": 0,
@@ -32413,7 +32413,7 @@ _subresources={
 "slices/amount": null
 },
 "UpTilt": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/RookUpTilt.tres",
 "settings/loop_mode": 0,
@@ -34212,7 +34212,7 @@ _subresources={
 "slices/amount": null
 },
 "WalkFast": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/RookWalkFast.tres",
 "settings/loop_mode": 0,

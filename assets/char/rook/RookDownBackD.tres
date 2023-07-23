@@ -2,8 +2,7 @@
 
 [resource]
 resource_name = "DownBackD"
-length = 0.600002
-step = 0.0166667
+length = 2.0
 tracks/0/type = "position_3d"
 tracks/0/imported = true
 tracks/0/enabled = true

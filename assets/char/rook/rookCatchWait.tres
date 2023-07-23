@@ -3,6 +3,8 @@
 [resource]
 resource_name = "CatchWait"
 length = 0.5
+loop_mode = 1
+step = 0.0166667
 tracks/0/type = "rotation_3d"
 tracks/0/imported = true
 tracks/0/enabled = true

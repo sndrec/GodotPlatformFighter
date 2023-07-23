@@ -31,7 +31,7 @@ import_script/path=""
 _subresources={
 "animations": {
 "DownAttackD": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/fix/RookDownAttackD.tres",
 "settings/loop_mode": 0,
@@ -1830,7 +1830,7 @@ _subresources={
 "slices/amount": null
 },
 "DownAttackU": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/fix/RookDownAttackU.tres",
 "settings/loop_mode": 0,
@@ -3629,7 +3629,7 @@ _subresources={
 "slices/amount": null
 },
 "DownBackD": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/fix/RookDownBackD.tres",
 "settings/loop_mode": 0,
@@ -5428,7 +5428,7 @@ _subresources={
 "slices/amount": null
 },
 "DownBackU": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/fix/RookDownBackU.tres",
 "settings/loop_mode": 0,
@@ -7227,7 +7227,7 @@ _subresources={
 "slices/amount": null
 },
 "DownBoundD": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/fix/RookDownBoundD.tres",
 "settings/loop_mode": 0,
@@ -9026,7 +9026,7 @@ _subresources={
 "slices/amount": null
 },
 "DownBoundU": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/fix/RookDownBoundU.tres",
 "settings/loop_mode": 0,
@@ -10825,7 +10825,7 @@ _subresources={
 "slices/amount": null
 },
 "DownDamageD": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/fix/RookDownDamageD.tres",
 "settings/loop_mode": 0,
@@ -12624,7 +12624,7 @@ _subresources={
 "slices/amount": null
 },
 "DownDamageU": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/fix/RookDownDamageU.tres",
 "settings/loop_mode": 0,
@@ -14423,7 +14423,7 @@ _subresources={
 "slices/amount": null
 },
 "DownForwardD": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/fix/RookDownForwardD.tres",
 "settings/loop_mode": 0,
@@ -16222,7 +16222,7 @@ _subresources={
 "slices/amount": null
 },
 "DownForwardU": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/fix/RookDownForwardU.tres",
 "settings/loop_mode": 0,
@@ -18021,7 +18021,7 @@ _subresources={
 "slices/amount": null
 },
 "DownStandD": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/fix/RookDownStandD.tres",
 "settings/loop_mode": 0,
@@ -19820,7 +19820,7 @@ _subresources={
 "slices/amount": null
 },
 "DownStandU": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/fix/RookDownStandU.tres",
 "settings/loop_mode": 0,
@@ -21619,7 +21619,7 @@ _subresources={
 "slices/amount": null
 },
 "DownWaitD": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/fix/RookDownWaitD.tres",
 "settings/loop_mode": 0,
@@ -23418,7 +23418,7 @@ _subresources={
 "slices/amount": null
 },
 "DownWaitU": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/fix/RookDownWaitU.tres",
 "settings/loop_mode": 0,

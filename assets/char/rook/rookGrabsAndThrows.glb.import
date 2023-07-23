@@ -31,7 +31,7 @@ import_script/path=""
 _subresources={
 "animations": {
 "CatchAttack": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/fix/rookCatchAttack.tres",
 "settings/loop_mode": 0,
@@ -1830,7 +1830,7 @@ _subresources={
 "slices/amount": null
 },
 "CatchCut": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/fix/rookCatchCut.tres",
 "settings/loop_mode": 0,
@@ -3629,7 +3629,7 @@ _subresources={
 "slices/amount": null
 },
 "CatchWait": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/fix/rookCatchWait.tres",
 "settings/loop_mode": 0,
@@ -5428,7 +5428,7 @@ _subresources={
 "slices/amount": null
 },
 "ThrowB": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/fix/rookThrowB.tres",
 "settings/loop_mode": 0,
@@ -7227,7 +7227,7 @@ _subresources={
 "slices/amount": null
 },
 "ThrowF": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/fix/rookThrowF.tres",
 "settings/loop_mode": 0,
@@ -9026,7 +9026,7 @@ _subresources={
 "slices/amount": null
 },
 "ThrowHi": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/fix/rookThrowHi.tres",
 "settings/loop_mode": 0,
@@ -10825,7 +10825,7 @@ _subresources={
 "slices/amount": null
 },
 "ThrowLw": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://assets/char/rook/fix/rookThrowLw.tres",
 "settings/loop_mode": 0,
