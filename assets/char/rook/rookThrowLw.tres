@@ -3,6 +3,7 @@
 [resource]
 resource_name = "ThrowLw"
 length = 0.75
+step = 0.0166667
 tracks/0/type = "scale_3d"
 tracks/0/imported = true
 tracks/0/enabled = true

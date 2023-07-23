@@ -1,0 +1,11 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://cx4da3cxsjkev"]
+
+[ext_resource type="Script" path="res://assets/resources/subactions/execute_throw.gd" id="1_tw2ue"]
+
+[resource]
+script = ExtResource("1_tw2ue")
+ThrowAngle = 0.0
+ThrowDamage = 0.0
+ThrowBaseKB = 0.0
+ThrowKBGrowth = 0.0
+ThrowWeightBasedSetKB = 0.0

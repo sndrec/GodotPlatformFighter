@@ -6,6 +6,8 @@ func _execute(inFt: Fighter) -> void:
 	inFt.FighterSkeleton.set_bone_pose_scale(inFt.FighterSkeleton.find_bone("TransN"), Vector3.ONE)
 	inFt.update_pose()
 	var grabbed = inFt.GrabbedFighter
+	if !grabbed:
+		return
 	var desiredHipPose : Transform3D = inFt.FighterSkeleton.get_bone_global_pose(inFt.FighterSkeleton.find_bone("ThrowN"))
 	desiredHipPose = inFt.FighterSkeleton.transform * desiredHipPose
 	desiredHipPose = inFt.transform * desiredHipPose
