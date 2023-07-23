@@ -2,31 +2,35 @@ extends Resource
 
 class_name HitboxDefinition
 
-@export var boneName: String = "HipN"
+var boneName: String = "HipN"
 
-@export var hitboxID: int = 0
+var hitboxID: int = 0
 
-@export var offset: Vector3 = Vector3.ZERO
+var offset: Vector3 = Vector3.ZERO
 
-@export var radius: float = 1.0
+var radius: float = 1.0
 
-@export var damage: float = 0.0
+var damage: float = 0.0
 
-@export var damageShield: float = 0.0
+var damageShield: float = 0.0
 
-@export var kbAngle: float = 0.0
+var kbAngle: float = 0.0
 
-@export var kbAngleFixed: bool = false
+var kbAngleFixed: bool = false
 
-@export var kbBase: float = 0.0
+var kbBase: float = 0.0
 
-@export var kbGrowth: float = 0.0
+var kbGrowth: float = 0.0
 
-@export var kbWeightSet: float = 0.0
+var kbWeightSet: float = 0.0
 
-@export var HitAirborne: bool = true
+var HitAirborne: bool = true
 
-@export var HitGrounded: bool = true
+var HitGrounded: bool = true
+
+var IsTrigger: bool = false
+
+var TriggerFuncs: Array[FighterFunction] = []
 
 var firstFrame = true
 
@@ -34,7 +38,7 @@ var curGlobalPosition: Vector3 = Vector3.ZERO
 
 var oldGlobalPosition: Vector3 = Vector3.ZERO
 
-func _init(p_boneName := "HipN", p_hitboxID := 0, p_offset := Vector3.ZERO, p_radius := 1.0, p_damage := 0.0, p_damageShield := 0.0, p_kbAngle := 0.0, p_kbAngleFixed := false, p_kbBase := 0.0, p_kbGrowth := 0.0, p_kbWeightSet := 0.0, p_hitGrounded := true, p_hitAirborne := true):
+func _init(p_boneName := "HipN", p_hitboxID := 0, p_offset := Vector3.ZERO, p_radius := 1.0, p_damage := 0.0, p_damageShield := 0.0, p_kbAngle := 0.0, p_kbAngleFixed := false, p_kbBase := 0.0, p_kbGrowth := 0.0, p_kbWeightSet := 0.0, p_hitGrounded := true, p_hitAirborne := true, p_isTrigger := false, p_triggerFuncs: Array[FighterFunction] = []):
 	boneName = p_boneName
 	hitboxID = p_hitboxID
 	offset = p_offset
@@ -48,6 +52,8 @@ func _init(p_boneName := "HipN", p_hitboxID := 0, p_offset := Vector3.ZERO, p_ra
 	kbWeightSet = p_kbWeightSet
 	HitGrounded = p_hitGrounded
 	HitAirborne = p_hitAirborne
+	IsTrigger = p_isTrigger
+	TriggerFuncs = p_triggerFuncs
 	curGlobalPosition = Vector3.ZERO
 	oldGlobalPosition = Vector3.ZERO
 	firstFrame = true

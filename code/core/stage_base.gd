@@ -132,7 +132,7 @@ func _network_process(input: Dictionary) -> void:
 	var targetDist := maxf(absf(camMins.x - camMaxs.x) * 1.05, 150)
 	var cc = $CameraController as Node3D
 	var desiredPos := FHelp.Vec2to3(camCenter) + Vector3(0, 0, targetDist)
-	cc.global_position = cc.global_position.lerp(desiredPos, 0.08)
+	cc.global_position = cc.global_position.lerp(desiredPos, 0.2)
 
 func _save_state() -> Dictionary:
 	return {

@@ -67,6 +67,7 @@ var ActiveHitboxes: Array[HitboxDefinition] = []
 var curSubaction: Array[Array]
 var stateFlags: int = 0
 var FightersHit: Array[Fighter] = []
+var GrabbedFighter: Fighter
 var facing : int = 1
 var kbVel : Vector2 = Vector2.ZERO
 var ftVel : Vector2 = Vector2.ZERO
@@ -440,9 +441,12 @@ func construct_hurtboxes():
 		FighterSkeleton.add_child(newHitboxInstance)
 		newHitboxInstance.position_debug_helpers()
 		instanceCounter += 3
+		var desiredColor = Color(0.25, 0.0, 0.0)
+		if hitboxDef.IsTrigger:
+			desiredColor = Color(0.35, 0.0, 0.35)
 		for child in newHitboxInstance.get_children():
 			var kfg = child as MeshInstance3D
-			kfg.set_instance_shader_parameter("bubbleColor", Vector3(0.25, 0.0, 0.0))
+			kfg.set_instance_shader_parameter("bubbleColor", desiredColor)
 
 func unfold_action(inAction: Array[Subaction]) -> void:
 	curSubaction.clear()
@@ -595,6 +599,8 @@ func do_damage(inHurtbox: HurtboxDefinition, inHitbox: HitboxDefinition, victim:
 
 func check_hitboxes() -> void:
 	for i in range(ActiveHitboxes.size()):
+		if i >= ActiveHitboxes.size():
+			break
 		var curHitbox = ActiveHitboxes[i] as HitboxDefinition
 		var boneID = FighterSkeleton.find_bone(curHitbox.boneName)
 		if boneID == -1:
@@ -616,6 +622,8 @@ func check_hitboxes() -> void:
 		
 		#DebugDraw.draw_sphere(curHitbox.curGlobalPosition, curHitbox.radius, Color(1, 0, 0), 0.01666)
 		for f in range(stage.fighters.size()):
+			if curHitbox == null or !curHitbox:
+				break
 			var curFighter = stage.fighters[f] as Fighter
 			if curFighter == self:
 				continue
@@ -625,7 +633,7 @@ func check_hitboxes() -> void:
 					alreadyHit = true
 			if alreadyHit:
 				continue
-			if curFighter.ourShield.active:
+			if !curHitbox.IsTrigger and curFighter.ourShield.active:
 				var ss = curFighter.get_shield_size()
 				var sp = curFighter.get_shield_position()
 				var hitShield = FHelp.TestSphereCapsuleIntersection(sp, ss, curHitbox.curGlobalPosition, curHitbox.oldGlobalPosition, curHitbox.radius)
@@ -644,7 +652,11 @@ func check_hitboxes() -> void:
 				globalEnd = curFighter.FighterSkeleton.to_global(globalEnd)
 				var intersect = FHelp.TestCapsuleCapsuleIntersection(curHitbox.curGlobalPosition, curHitbox.oldGlobalPosition, curHitbox.radius, globalStart, globalEnd, curHurtbox.radius)
 				if intersect:
-					do_damage(curHurtbox, curHitbox, curFighter)
+					if curHitbox.IsTrigger:
+						for tf in range(curHitbox.TriggerFuncs.size()):
+							curHitbox.TriggerFuncs[tf]._execute(curHurtbox, curHitbox, curFighter, self)
+					else:
+						do_damage(curHurtbox, curHitbox, curFighter)
 					break
 
 func check_interrupts(recursion: int) -> void:
@@ -703,8 +715,9 @@ func execute_current_action(actionFrame: int) -> void:
 			subaction._execute(self)
 
 func update_pose() -> void:
-	for i in range(FighterSkeleton.get_bone_count()):
-		FighterSkeleton.force_update_bone_child_transform(i)
+	FighterSkeleton.force_update_bone_child_transform(0)
+	#for i in range(FighterSkeleton.get_bone_count()):
+	#	FighterSkeleton.force_update_bone_child_transform(0)
 
 func apply_shielded_hit_effects(inVictim: Fighter, inHitbox: HitboxDefinition) -> void:
 	var d = inHitbox.damage + inHitbox.damageShield
@@ -726,11 +739,6 @@ func apply_shielded_hit_effects(inVictim: Fighter, inHitbox: HitboxDefinition) -
 	print("shield health:" + str(inVictim.ourShield.health))
 
 func fighter_tick() -> void:
-	
-	var tests = []
-	for ft in stage.fighters:
-		tests.append(ft.input_controller.get_trigger_analog_unbuffered())
-	
 	DebugDraw.set_text("ACTION TIMER", "NO ACTION")
 	DebugDraw.set_text("SUBACTION", "NO SUBACTION")
 	if input_controller:
@@ -844,7 +852,7 @@ func fighter_tick() -> void:
 	DebugDraw.set_text("FLAGS: ", str(stateFlags))
 
 func _save_state() -> Dictionary:
-	return {
+	var state = {
 		_Hurtboxes = Hurtboxes.duplicate(),
 		_FightersHit = FightersHit.duplicate(),
 		_ActiveHitboxes = ActiveHitboxes.duplicate(),
@@ -884,6 +892,9 @@ func _save_state() -> Dictionary:
 		ECBOld = ECBOld.duplicate(),
 		oldPose = oldPose.duplicate()
 	}
+	if GrabbedFighter:
+		state._GrabbedFighter = GrabbedFighter
+	return state
 	
 
 func _load_state(state: Dictionary) -> void:
@@ -925,3 +936,6 @@ func _load_state(state: Dictionary) -> void:
 		ECB = state["ECB"].duplicate()
 		ECBOld = state["ECBOld"].duplicate()
 		oldPose = state["oldPose"].duplicate()
+		
+		if state.has("_GrabbedFighter"):
+			GrabbedFighter = state["_GrabbedFighter"].duplicate()

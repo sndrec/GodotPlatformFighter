@@ -1,0 +1,6 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://bn28dksx1mu52"]
+
+[ext_resource type="Script" path="res://assets/resources/baseFighterFunctions/ft_processGrabAndThrow.gd" id="1_fmwm2"]
+
+[resource]
+script = ExtResource("1_fmwm2")

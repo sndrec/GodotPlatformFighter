@@ -1,0 +1,6 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://j7nw6rj4qsak"]
+
+[ext_resource type="Script" path="res://assets/resources/triggerboxCommands/tc_executeGrab.gd" id="1_68tdx"]
+
+[resource]
+script = ExtResource("1_68tdx")

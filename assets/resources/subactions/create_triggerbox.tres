@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="CreateHitbox" load_steps=2 format=3 uid="uid://bj44gbprdqgjq"]
+
+[ext_resource type="Script" path="res://assets/resources/subactions/create_triggerbox.gd" id="1_fxy1g"]
+
+[resource]
+script = ExtResource("1_fxy1g")
+boneName = "HipN"
+hitboxID = 0
+offset = Vector3(0, 0, 0)
+radius = 1.0
+damage = 4.0
+damageShield = 0.0
+kbAngle = 90.0
+kbAngleFixed = false
+kbBase = 50.0
+kbGrowth = 0.0
+kbWeightSet = 0.0
+hitGrounded = true
+hitAirborne = true

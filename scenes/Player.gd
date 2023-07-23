@@ -343,7 +343,7 @@ func _get_local_input() -> Dictionary:
 				input_buttons += buttons.attack
 		
 		if !(input_buttons & buttons.grab):
-			if Input.is_joy_button_pressed(pad, 5):
+			if Input.is_joy_button_pressed(pad, 4):
 				input_buttons += buttons.grab
 		
 		if !(input_buttons & buttons.shield):

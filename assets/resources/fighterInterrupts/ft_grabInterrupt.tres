@@ -1,0 +1,12 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://76nphnhoj7yl"]
+
+[ext_resource type="Script" path="res://assets/resources/fighterInterrupts/ft_grabInterrupt.gd" id="1_ydbqf"]
+
+[resource]
+script = ExtResource("1_ydbqf")
+blendTime = 0
+lagTime = 0
+startActive = true
+enableTime = 0
+disableTime = 0
+requiredState = 0
