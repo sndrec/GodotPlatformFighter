@@ -1,4 +1,4 @@
-class_name ProcessDamage extends FighterFunction
+class_name ProcessDamage extends OnFrame
 
 var AirMovement = preload("res://assets/resources/baseFighterFunctions/ft_processAirborne.tres")
 var GroundMovement = preload("res://assets/resources/baseFighterFunctions/ft_processGrounded.tres")
@@ -6,7 +6,7 @@ var GroundMovement = preload("res://assets/resources/baseFighterFunctions/ft_pro
 func _execute(inFt: Fighter):
 	if inFt.hitStun > 0:
 		inFt.InterruptableTime = 32768
-		if inFt.grounded:
+		if inFt.grounded and inFt.kbVel.y >= 0:
 			GroundMovement._execute(inFt)
 		else:
 			AirMovement._execute(inFt, false)

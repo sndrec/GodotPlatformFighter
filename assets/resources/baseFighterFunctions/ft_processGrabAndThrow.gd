@@ -1,4 +1,4 @@
-class_name ProcessGrabAndThrow extends FighterFunction
+class_name ProcessGrabAndThrow extends OnFrame
 
 func _execute(inFt: Fighter) -> void:
 	inFt.FighterSkeleton.set_bone_pose_position(inFt.FighterSkeleton.find_bone("TransN"), Vector3.ZERO)
@@ -19,5 +19,5 @@ func _execute(inFt: Fighter) -> void:
 	grabbedTransNGlobalPose = grabbed.transform * grabbedTransNGlobalPose
 	var offset = desiredHipPose * (grabbedHipNGlobalPose.affine_inverse() * grabbedTransNGlobalPose)
 	grabbed.ftPos = FHelp.Vec3to2(offset.origin)
-	grabbed.FighterSkeleton.set_bone_global_pose_override(grabbed.FighterSkeleton.find_bone("TransN"), Transform3D(inFt.FighterSkeleton.get_bone_global_pose(inFt.FighterSkeleton.find_bone("ThrowN")).basis, Vector3.ZERO), 1, true)
+	grabbed.FighterSkeleton.set_bone_global_pose_override(grabbed.FighterSkeleton.find_bone("TransN"), Transform3D(inFt.FighterSkeleton.get_bone_global_pose(inFt.FighterSkeleton.find_bone("ThrowN")).basis, Vector3.ZERO), 1, false)
 	grabbed.update_pose()

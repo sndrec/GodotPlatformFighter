@@ -1,0 +1,7 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://dxl8dasg853de"]
+
+[ext_resource type="Script" path="res://assets/resources/onLandingFunctions/special_landing.gd" id="1_r6qff"]
+
+[resource]
+script = ExtResource("1_r6qff")
+LandingLag = 10

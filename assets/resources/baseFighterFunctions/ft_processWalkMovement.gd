@@ -1,4 +1,4 @@
-class_name ProcessWalkMovement extends FighterFunction
+class_name ProcessWalkMovement extends OnFrame
 
 func _execute(inFt: Fighter):
 	var tempInput = inFt.input_controller.get_movement_vector_unbuffered()

@@ -1,0 +1,6 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://blhhvbu5dfkey"]
+
+[ext_resource type="Script" path="res://assets/resources/onLandingFunctions/damage_fly_landing.gd" id="1_uf2i5"]
+
+[resource]
+script = ExtResource("1_uf2i5")

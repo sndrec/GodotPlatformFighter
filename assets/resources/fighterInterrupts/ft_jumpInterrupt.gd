@@ -2,8 +2,8 @@ class_name JumpInterrupt extends Interrupt
 
 func _execute(inFt: Fighter) -> bool:
 	if inFt.get_frame_in_state() >= inFt.FightTable.JumpStartupLag:
-		inFt.grounded = false
 		inFt.jumps += 1
+		inFt.grounded = false
 		if inFt.input_controller.jump_down():
 			inFt.ftVel.y = inFt.FightTable.InitialVerticalJumpVelocity
 		else:

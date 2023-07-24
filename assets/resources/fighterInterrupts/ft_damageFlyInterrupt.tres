@@ -1,0 +1,12 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://dg7hb7jwhixpd"]
+
+[ext_resource type="Script" path="res://assets/resources/fighterInterrupts/ft_damageFlyInterrupt.gd" id="1_ufvyj"]
+
+[resource]
+script = ExtResource("1_ufvyj")
+blendTime = 0
+lagTime = 0
+startActive = true
+enableTime = 0
+disableTime = 0
+requiredState = 0

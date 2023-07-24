@@ -1,0 +1,6 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://deia6nhg6bh5r"]
+
+[ext_resource type="Script" path="res://code/core/ondamage_base.gd" id="1_flwsm"]
+
+[resource]
+script = ExtResource("1_flwsm")

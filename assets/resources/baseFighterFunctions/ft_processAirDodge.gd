@@ -1,4 +1,4 @@
-class_name ProcessAirDodge extends FighterFunction
+class_name ProcessAirDodge extends OnFrame
 
 var AirMovement = preload("res://assets/resources/baseFighterFunctions/ft_processAirborne.tres")
 

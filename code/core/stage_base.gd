@@ -59,13 +59,11 @@ func _network_process(input: Dictionary) -> void:
 	var targetPoint := Vector2.ZERO
 	var ftMins := Vector2.ZERO
 	var ftMaxs := Vector2.ZERO
-	var pointSum := Vector2.ZERO
 	var desRatio := 1.777
 	var desRatio2 := 0.5625
 	for i in range(fighters.size()):
 		var wPos = fighters[i].ftPos
 		targetPoint = wPos + Vector2(6 * fighters[i].facing, 0)
-		pointSum += targetPoint
 		if i == 0:
 			ftMins = targetPoint
 			ftMaxs = targetPoint
@@ -132,7 +130,7 @@ func _network_process(input: Dictionary) -> void:
 	var targetDist := maxf(absf(camMins.x - camMaxs.x) * 1.05, 150)
 	var cc = $CameraController as Node3D
 	var desiredPos := FHelp.Vec2to3(camCenter) + Vector3(0, 0, targetDist)
-	cc.global_position = cc.global_position.lerp(desiredPos, 0.2)
+	cc.global_position = cc.global_position.lerp(desiredPos, 0.12)
 
 func _save_state() -> Dictionary:
 	return {

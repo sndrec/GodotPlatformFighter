@@ -3,6 +3,7 @@
 [resource]
 resource_name = "DownDamageU"
 length = 0.25
+step = 0.0166667
 tracks/0/type = "position_3d"
 tracks/0/imported = true
 tracks/0/enabled = true

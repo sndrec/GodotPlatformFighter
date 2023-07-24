@@ -1,0 +1,6 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://78rb1dsfdng4"]
+
+[ext_resource type="Script" path="res://code/core/onframe_base.gd" id="1_2ocq7"]
+
+[resource]
+script = ExtResource("1_2ocq7")

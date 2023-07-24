@@ -1,4 +1,4 @@
-class_name ProcessAerialAttack extends FighterFunction
+class_name ProcessAerialAttack extends OnFrame
 
 ## State the fighter should enter when landing on the ground.
 @export var landingLagState: String = "LandingAirN"

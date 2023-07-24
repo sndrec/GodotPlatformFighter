@@ -1,0 +1,6 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://c06y8ja6s1f1q"]
+
+[ext_resource type="Script" path="res://code/core/airbornefunc_base.gd" id="1_f5n58"]
+
+[resource]
+script = ExtResource("1_f5n58")

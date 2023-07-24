@@ -135,11 +135,3 @@ func position_debug_helpers() -> void:
 
 func _process(delta: float) -> void:
 	position_debug_helpers()
-	
-
-func IsContactingHitbox(inHitbox: Hitbox):
-	pass
-	#return FighterHelpers.TestCapsuleCapsuleIntersection(Hitbox.boneID
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass

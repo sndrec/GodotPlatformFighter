@@ -2,7 +2,6 @@ class_name DashInterrupt extends Interrupt
 
 func _execute(inFt: Fighter) -> bool:
 	var tempInput = inFt.input_controller.get_movement_vector_unbuffered()
-	var inputVelocity = inFt.input_controller.get_movement_vector_velocity_unbuffered()
 	var bufferedCheck2 = inFt.input_controller.get_movement_vector_velocity_recent_highest("x")
 	if absf(tempInput.x) > 0.75 and absf(bufferedCheck2) > 0.4:
 		if sign(tempInput.x) == inFt.facing:

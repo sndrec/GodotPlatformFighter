@@ -1,4 +1,4 @@
-class_name ProcessDamageFall extends FighterFunction
+class_name ProcessDamageFall extends OnFrame
 
 var AirMovement = preload("res://assets/resources/baseFighterFunctions/ft_processAirborne.tres")
 
@@ -8,8 +8,4 @@ func _execute(inFt: Fighter) -> void:
 		inFt.downDesire = "D"
 	else:
 		inFt.downDesire = "U"
-	if inFt.grounded:
-		inFt.kbVel.y = 0
-		inFt._change_fighter_state(inFt.find_state_by_name("DownBound"), 4, 0)
-	else:
-		AirMovement._execute(inFt, true)
+	AirMovement._execute(inFt, true)

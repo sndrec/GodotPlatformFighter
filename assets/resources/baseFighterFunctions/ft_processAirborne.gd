@@ -1,12 +1,6 @@
-class_name ProcessAirborne extends FighterFunction
+class_name ProcessAirborne extends OnFrame
 
 func _execute(inFt: Fighter, allowControl: bool = true):
-	if inFt.grounded:
-		if inFt.ftVel.y > -0.1:
-			inFt._change_fighter_state(inFt.find_state_by_name("Wait"), 8, 0)
-		else:
-			inFt._change_fighter_state(inFt.find_state_by_name("Landing"), 0, 4)
-	
 	var tempInput = inFt.input_controller.get_movement_vector_unbuffered()
 	var convInput = Vector3(tempInput.x, -tempInput.y, 0)
 	
@@ -19,9 +13,6 @@ func _execute(inFt: Fighter, allowControl: bool = true):
 	else:
 			inFt.apply_drag()
 	
-	var terminalVelocity = -inFt.FightTable.TerminalVelocity
-	if inFt.check_fighter_flag(12):
-		terminalVelocity = -inFt.FightTable.FastFallTerminalVelocity
 	inFt.ftVel.y = maxf(inFt.ftVel.y - inFt.FightTable.Gravity, -inFt.FightTable.TerminalVelocity)
 	
 	if allowControl and inFt.ftVel.y <= 0 and convInput.y <= -0.75:

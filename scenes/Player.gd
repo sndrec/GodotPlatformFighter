@@ -423,15 +423,6 @@ func _network_process(input: Dictionary) -> void:
 	
 	reset_input_state()
 	
-	if false:
-		var bufferKeys = inputBuffer[0].keys()
-		for i in range(bufferKeys.size()):
-			var print = ""
-			for s in inputBuffer:
-				print = print + "[" + str(s[bufferKeys[i]]) + "]"
-			
-			DebugDraw.set_text("buffer " + str(bufferKeys[i]), print)
-	
 	if controlledFighter:
 		controlledFighter.fighter_tick()
 

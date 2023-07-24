@@ -1,0 +1,6 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://be13ig3fgbm0b"]
+
+[ext_resource type="Script" path="res://code/core/landfunc_base.gd" id="1_i1f6p"]
+
+[resource]
+script = ExtResource("1_i1f6p")

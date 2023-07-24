@@ -1,4 +1,4 @@
-class_name ProcessLandingLag extends FighterFunction
+class_name ProcessLandingLag extends OnFrame
 
 @export var landingLagFrames: int = 25
 @export var endingState: String = "Wait"

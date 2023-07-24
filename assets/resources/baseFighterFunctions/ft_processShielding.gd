@@ -1,4 +1,4 @@
-class_name ProcessShielding extends FighterFunction
+class_name ProcessShielding extends OnFrame
 
 ## Whether this just affects the visual shield,
 ## or actually enables the shield and applies the shield pose.
@@ -12,7 +12,7 @@ func _execute(inFt: Fighter) -> void:
 		var shieldAngleStrength = min(inp.length(), 1)
 		var shieldAngleConverted = (int(floor(rad_to_deg(shieldAngle))) % 360) + 190
 		inFt.blend_pose("Guard", "Guard", 0, shieldAngleConverted, shieldAngleStrength)
-		inFt.ourShield.active = true
+	inFt.ourShield.active = true
 	var shieldPos := inFt.get_shield_position()
 	var shieldSprite = inFt.get_node("ShieldSprite") as Sprite3D
 	shieldSprite.global_position = shieldPos

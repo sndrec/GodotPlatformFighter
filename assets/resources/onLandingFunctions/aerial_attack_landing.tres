@@ -1,0 +1,7 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://dma85aikf7d1m"]
+
+[ext_resource type="Script" path="res://assets/resources/onLandingFunctions/aerial_attack_landing.gd" id="1_5bkjj"]
+
+[resource]
+script = ExtResource("1_5bkjj")
+desiredState = "LandingAirN"

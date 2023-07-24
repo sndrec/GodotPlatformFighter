@@ -1,0 +1,6 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://dktu44wre2dml"]
+
+[ext_resource type="Script" path="res://assets/resources/onAirborneFunctions/regular_airborne.gd" id="1_w4olk"]
+
+[resource]
+script = ExtResource("1_w4olk")

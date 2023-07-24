@@ -1,4 +1,4 @@
-class_name ProcessLedgeState extends FighterFunction
+class_name ProcessLedgeState extends OnFrame
 
 func _execute(inFt: Fighter) -> void:
 	var TransN = inFt.FighterSkeleton.find_bone("TransN")

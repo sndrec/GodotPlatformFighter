@@ -1,4 +1,4 @@
-class_name OnDamage extends FighterFunction
+class_name StandardOnDamage extends OnDamage
 
 var DownStates: Dictionary = {
 	"DownBound" = true,
@@ -7,7 +7,9 @@ var DownStates: Dictionary = {
 }
 
 func _execute(inFt: Fighter, inHurtbox: HurtboxDefinition, inHitbox: HitboxDefinition, attacker: Fighter) -> void:
-	inFt.percentage += inHitbox.damage
+	var invincible = inHurtbox.bodyState == HurtboxDefinition.hurtboxBodyState.Invincible
+	if !invincible:
+		inFt.percentage += inHitbox.damage
 	var knockBack = FHelp.CalculateKnockback(inHitbox, attacker, inFt)
 	# tumble threshold is 80 knockback!
 	# 
@@ -18,18 +20,22 @@ func _execute(inFt: Fighter, inHurtbox: HurtboxDefinition, inHitbox: HitboxDefin
 	if !inHitbox.kbAngleFixed and side != attacker.facing:
 		kbAngle.x *= -1
 	var oldFacing = inFt.facing
-	inFt.facing = -side
-	inFt.ftVel = Vector2.ZERO
-	inFt.kbVel = kbAngle * knockBack * 0.03 * kbVelMult
-	inFt.hitStun = floor(knockBack * 0.4)
+	if !invincible:
+		inFt.facing = -side
+		inFt.ftVel = Vector2.ZERO
+		inFt.kbVel = kbAngle * knockBack * 0.03 * kbVelMult
+		inFt.hitStun = floor(knockBack * 0.4)
 	var c = 1
 	var e = 1
 	var ourHitlag = floor(c * floor(e * floor(3+inHitbox.damage/3)))
-	inFt.hitLag = ourHitlag
+	if !invincible:
+		inFt.hitLag = ourHitlag
 	attacker.hitLag = ourHitlag
 	print("Knockback: " + str(knockBack))
 	print("Hitstun: " + str(inFt.hitStun))
 	print("Hitlag: " + str(ourHitlag))
+	if invincible:
+		return
 	var desiredAnim = "DamageN1"
 	if knockBack < 80:
 		if DownStates.has(inFt.charState.stateName) and knockBack <= 25:
@@ -82,7 +88,8 @@ func _execute(inFt: Fighter, inHurtbox: HurtboxDefinition, inHitbox: HitboxDefin
 			desiredAnim = "DamageFlyTop"
 	inFt.Animator.current_animation = desiredAnim
 	inFt.Animator.assigned_animation = desiredAnim
-	inFt.Animator.seek(1 / 60, true)
+	inFt.Animator.seek(1.0 / 60.0, true)
 	inFt.update_pose()
-	inFt.grounded = false
+	inFt.check_on_airborne()
+	
 	inFt.badgeGrid.update_player_percent(inFt)
