@@ -7,6 +7,7 @@ func _execute(inFt: Fighter) -> bool:
 		inFt.input_controller.clear_jump_pressed()
 		inFt.grounded = false
 		inFt.jumps += 1
+		inFt.set_fighter_flag(12, false)
 		inFt.ftVel.y = inFt.FightTable.InitialVerticalJumpVelocity * inFt.FightTable.VerticalAirJumpMultiplier
 		inFt.ftVel.x = convInput.x * inFt.FightTable.HorizontalAirJumpMultiplier
 		if inFt.ftVel.x >= 0:

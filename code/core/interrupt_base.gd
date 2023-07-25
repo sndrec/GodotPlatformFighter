@@ -15,6 +15,10 @@ enum groundRequire {
 ## If this interrupt is enabled when the state is entered.
 @export var startActive: bool = true
 
+## If this interrupt is always active, no matter what - even if interrupts
+## have been disabled by the action or lag time.
+@export var alwaysActive: bool = false
+
 ## Frame of the state that the interrupt should become active, if it was inactive.
 @export var enableTime: int = 0
 

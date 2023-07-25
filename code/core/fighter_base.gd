@@ -121,12 +121,14 @@ func _network_spawn(data: Dictionary) -> void:
 	ourFightTable = FightTable.duplicate()
 	FighterSkeleton = $Skeleton3D
 	set_body_vulnerability(HurtboxDefinition.hurtboxBodyState.Normal)
+	grounded = true
 	_change_fighter_state(States[0])
 
 func respawn_self() -> void:
 	percentage = 0
 	ftPos = Vector2.ZERO
 	kbVel = Vector2.ZERO
+	grounded = true
 	set_body_vulnerability(HurtboxDefinition.hurtboxBodyState.Normal)
 	_change_fighter_state(find_state_by_name("Wait"), 0, 0)
 	_calculate_ecb(true)
@@ -238,7 +240,6 @@ func do_fighter_move_and_collide(desiredPos: Vector2):
 	try_fighter_ccd()
 	depen_fighter_by_midpoint()
 	if wasGrounded:
-		print("check and move to ground")
 		var onGround = check_and_move_to_ground()
 		if !onGround:
 			print("no ground!")
@@ -247,14 +248,17 @@ func do_fighter_move_and_collide(desiredPos: Vector2):
 				var closest = oldGround.startOffset
 				if (oldGround.endOffset - ftPos).length() < (oldGround.startOffset - ftPos).length():
 					closest = oldGround.endOffset
-					ftPos = closest
-					animVel = Vector2.ZERO
-					ftVel = Vector2.ZERO
-					grounded = true
+				#DebugDraw.draw_sphere(FHelp.Vec2to3(ftPos), 1, Color(1, 0, 0), 0.016666)
+				ftPos = closest
+				#DebugDraw.draw_sphere(FHelp.Vec2to3(ftPos), 1, Color(0, 1, 0), 0.016666)
+				animVel = Vector2.ZERO
+				ftVel = Vector2.ZERO
+				grounded = true
 			else:
 				print("go airborne")
 				check_on_airborne()
-	draw_ecb()
+	#DebugDraw.draw_sphere(FHelp.Vec2to3(ftPos), 0.5, Color(1, 1, 1), 0.016666)
+	#draw_ecb()
 	_calculate_ecb(true)
 
 func depen_fighter_by_midpoint() -> void:
@@ -279,7 +283,7 @@ func depen_fighter_by_midpoint() -> void:
 			var colResult = FHelp.TestRayLineIntersection(mid, dirFromMid, segment.startOffset, segment.endOffset)
 			if colResult.hit and colResult.dist <= traceLength:
 				var hitPoint = mid + dirFromMid * colResult.dist
-				DebugDraw.draw_sphere(FHelp.Vec2to3(hitPoint), 0.2, Color(1, 0, 0), 0.01666)
+				#DebugDraw.draw_sphere(FHelp.Vec2to3(hitPoint), 0.2, Color(1, 0, 0), 0.01666)
 				var move = -dirFromMid * ((traceLength - colResult.dist) + 0.1)
 				ftPos += move
 				_calculate_ecb(false)
@@ -689,9 +693,11 @@ func check_interrupts(recursion: int) -> void:
 	if recursion > 3:
 		print("Stopped an interrupt loop.")
 		return
+	if hitStun > 0:
+		return
 	var interruptedPrematurely = false
-	if get_frame_in_state() >= InterruptableTime and hitStun == 0:
-		for i in range(charState.interrupts.size()):
+	for i in range(charState.interrupts.size()):
+		if get_frame_in_state() >= InterruptableTime or charState.interrupts[i].alwaysActive:
 			if charState.interrupts[i].startActive:
 				if charState.interrupts[i].disableTime != 0 and get_frame_in_state() >= charState.interrupts[i].disableTime:
 					if charState.interrupts[i].enableTime == 0:
@@ -734,10 +740,10 @@ func check_onframe() -> void:
 
 func execute_current_action(actionFrame: int) -> void:
 	if curSubaction.size() > actionFrame:
-		DebugDraw.set_text("ACTION TIMER", str(actionFrame))
+		#DebugDraw.set_text("ACTION TIMER", str(actionFrame))
 		for i in range(curSubaction[actionFrame].size()):
 			var subaction = curSubaction[actionFrame][i]
-			DebugDraw.set_text("SUBACTION", subaction.SubactionName)
+			#DebugDraw.set_text("SUBACTION", subaction.SubactionName)
 			subaction._execute(self)
 
 func update_pose() -> void:
@@ -794,8 +800,8 @@ func check_and_move_to_ground() -> bool:
 	return hitAny
 
 func fighter_tick() -> void:
-	DebugDraw.set_text("ACTION TIMER", "NO ACTION")
-	DebugDraw.set_text("SUBACTION", "NO SUBACTION")
+	#DebugDraw.set_text("ACTION TIMER", "NO ACTION")
+	#DebugDraw.set_text("SUBACTION", "NO SUBACTION")
 	if input_controller:
 		if hitLag > 0 or shieldStun > 0:
 			if hitLag > 0:
@@ -803,7 +809,7 @@ func fighter_tick() -> void:
 			if hitLag == 0:
 				print("Doing DI")
 				internalFrameCounter += 1
-				DebugDraw.draw_arrow_line(FHelp.Vec2to3(ftPos), FHelp.Vec2to3(ftPos + kbVel.normalized() * 32), Color(0.3, 0.3, 0.3), 0.1, false, 3)
+				#DebugDraw.draw_arrow_line(FHelp.Vec2to3(ftPos), FHelp.Vec2to3(ftPos + kbVel.normalized() * 32), Color(0.3, 0.3, 0.3), 0.1, false, 3)
 				var kbVelPerpendicular = kbVel.rotated(PI * 0.5).normalized()
 				var moveRestrict = input_controller.get_movement_vector_unbuffered()
 				moveRestrict.y *= -1
@@ -813,8 +819,8 @@ func fighter_tick() -> void:
 				var DIColor = Color(1, lerp(1, 0, abs(DirectionalInfluencePower)), lerp(1, 0, abs(DirectionalInfluencePower)))
 				var maxDIAng = deg_to_rad(18)
 				kbVel = kbVel.rotated(maxDIAng * DirectionalInfluencePower)
-				DebugDraw.draw_arrow_line(FHelp.Vec2to3(ftPos), FHelp.Vec2to3(ftPos + moveRestrict * 32), Color(0, 1, 0), 0.1, false, 3)
-				DebugDraw.draw_arrow_line(FHelp.Vec2to3(ftPos), FHelp.Vec2to3(ftPos + kbVel.normalized() * 32), DIColor, 0.1, false, 3)
+				#DebugDraw.draw_arrow_line(FHelp.Vec2to3(ftPos), FHelp.Vec2to3(ftPos + moveRestrict * 32), Color(0, 1, 0), 0.1, false, 3)
+				#DebugDraw.draw_arrow_line(FHelp.Vec2to3(ftPos), FHelp.Vec2to3(ftPos + kbVel.normalized() * 32), DIColor, 0.1, false, 3)
 			if shieldStun > 0:
 				shieldStun -= 1
 		else:
@@ -886,9 +892,6 @@ func fighter_tick() -> void:
 			FighterSkeleton.set_bone_pose_scale(TransN, Vector3.ONE)
 			update_pose()
 		
-		if kbVel.length() > 0:
-			DebugDraw.draw_arrow_line(FHelp.Vec2to3(ftPos), FHelp.Vec2to3(ftPos + kbVel * 8), Color(1, 1, 1), 0.1, false, 0.016666)
-			DebugDraw.set_text("KBVEL", kbVel)
 	if ftPos.x < stage.StageBounds[0].x or ftPos.x > stage.StageBounds[1].x or ftPos.y < stage.StageBounds[0].y or ftPos.y > stage.StageBounds[1].y:
 		respawn_self()
 	position = FHelp.Vec2to3(ftPos)
@@ -905,9 +908,9 @@ func fighter_tick() -> void:
 		if SDIPulseAllow:
 			do_fighter_move_and_collide(ftPos + SDIPulse)
 		check_on_airborne()
-	DebugDraw.set_text("BUTTONS", input_controller.shield_down())
-	DebugDraw.set_text("STATE", charState.stateName)
-	DebugDraw.set_text("FLAGS: ", str(stateFlags))
+	#DebugDraw.set_text("BUTTONS", input_controller.shield_down())
+	#DebugDraw.set_text("STATE", charState.stateName)
+	#DebugDraw.set_text("FLAGS: ", str(stateFlags))
 
 func _save_state() -> Dictionary:
 	var state = {

@@ -20,7 +20,7 @@ func _execute(inFt: Fighter) -> bool:
 	if inFt.internalFrameCounter < inFt.lastTimeOnLedge + 30:
 		return false
 	var globalGrabBox = Rect2(inFt.ledgeBox.position + inFt.ftPos, inFt.ledgeBox.size)
-	DebugDraw.draw_box(FHelp.Vec2to3(globalGrabBox.position), FHelp.Vec2to3(globalGrabBox.size), Color(1, 0, 0), false, 0.01666)
+	#DebugDraw.draw_box(FHelp.Vec2to3(globalGrabBox.position), FHelp.Vec2to3(globalGrabBox.size), Color(1, 0, 0), false, 0.01666)
 	var canGrab = false
 	var pointToGrab: StageLedgePoint
 	var effVel = inFt.ftVel + inFt.kbVel + inFt.animVel

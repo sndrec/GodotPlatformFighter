@@ -1,0 +1,12 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://6wsgc42h0wk0"]
+
+[ext_resource type="Script" path="res://assets/resources/fighterInterrupts/ft_platformDropthroughInterrupt.gd" id="1_q5psh"]
+
+[resource]
+script = ExtResource("1_q5psh")
+blendTime = 0
+lagTime = 0
+startActive = true
+enableTime = 0
+disableTime = 0
+requiredState = 0
