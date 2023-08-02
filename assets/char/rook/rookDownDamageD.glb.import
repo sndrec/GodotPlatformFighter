@@ -33,7 +33,7 @@ _subresources={
 "DownDamageD": {
 "save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
-"save_to_file/path": "res://assets/char/rook/rookDownDamageD.tres",
+"save_to_file/path": "res://assets/char/rook/fix/rookDownDamageD.tres",
 "settings/loop_mode": 0,
 "slice_1/end_frame": 0,
 "slice_1/loop_mode": 0,

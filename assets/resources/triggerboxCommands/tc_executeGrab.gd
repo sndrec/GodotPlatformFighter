@@ -3,7 +3,7 @@ class_name ExecuteGrab extends FighterFunction
 func _execute(inHurtbox: HurtboxDefinition, inHitbox: HitboxDefinition, inVictim: Fighter, inAttacker: Fighter) -> void:
 	if !inHurtbox.grabbable:
 		return
-	inAttacker.GrabbedFighter = inVictim
+	inAttacker.GrabbedFighter = inVictim.fighterID
 	inVictim.ftVel = Vector2.ZERO
 	inAttacker.clear_hitboxes()
 	inVictim.clear_hitboxes()

@@ -19,8 +19,8 @@ class_name FighterState extends Resource
 ## Enable for states where the animation should move the character.
 @export var useAnimPhysics: bool
 
-## If this state uses animation physics, normally they won't be allowed to slide off an edge.
-## Enable this if you would like to allow them to slide off edges like normal.
+## Normally, a fighter's velocity will allow them to slide off of an edge, and become airborne.
+## Disable this if you want to prevent a fighter from sliding off edges when in this state.
 @export var allowSlideoff: bool = true
 
 ## State to go to when the animation for this state finishes playing without being interrupted.
@@ -40,11 +40,11 @@ class_name FighterState extends Resource
 @export var onExitState: Array[FighterFunction]
 
 ## Functions that will run when the player lands on the ground, if they were previously airborne.
-## This is not useful if this state is an exclusively grounded state.
+## If the state is exclusively grounded, this will probably not be useful.
 @export var onLanding: Array[LandingFunc]
 
 ## Functions that will run when the player becomes airborne, if they were previously grounded.
-## This is not useful if this state is an exclusively airborne state.
+## If the state is exclusively airborne, this will probably not be useful.
 @export var onAirborne: Array[AirborneFunc]
 
 ## Functions that handle when this state can/will change to a new state.

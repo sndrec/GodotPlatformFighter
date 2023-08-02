@@ -33,6 +33,9 @@ class_name FighterPropertyTable extends Resource
 ## How much the fighter accelerates toward the desired walk speed per frame.
 @export var WalkAcceleration: float = 0.08
 
+## How much the fighter accelerates toward the desired walk speed per frame.
+@export var RunAcceleration: float = 0.04
+
 ## The speed where the fighter transitions from the slow walk animation to the mid walk animation.
 @export var MidWalkPoint: float = 0.6
 

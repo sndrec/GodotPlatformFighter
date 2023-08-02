@@ -1,0 +1,13 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://cl2meedd6ulyx"]
+
+[ext_resource type="Script" path="res://assets/resources/fighterInterrupts/ft_turnRunInterrupt.gd" id="1_rgbcf"]
+
+[resource]
+script = ExtResource("1_rgbcf")
+blendTime = 0
+lagTime = 0
+startActive = true
+alwaysActive = false
+enableTime = 0
+disableTime = 0
+requiredState = 0

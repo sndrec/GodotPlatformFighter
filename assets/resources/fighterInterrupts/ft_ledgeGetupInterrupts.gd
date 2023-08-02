@@ -3,7 +3,7 @@ class_name LedgeGetupInterrupts extends Interrupt
 func _execute(inFt: Fighter) -> bool:
 	
 	if inFt.input_controller.check_movement_vector_above(Vector2(0, 0.8)):
-		print(inFt.input_controller.get_movement_vector_unbuffered())
+		#print(inFt.input_controller.get_movement_vector_unbuffered())
 		inFt.input_controller.clear_movement_vector_above_threshold(Vector2(0, 0.8))
 		inFt.ftVel.y = -inFt.FightTable.FastFallTerminalVelocity
 		inFt.lastTimeOnLedge = inFt.internalFrameCounter

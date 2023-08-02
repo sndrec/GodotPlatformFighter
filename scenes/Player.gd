@@ -432,11 +432,11 @@ func _take_ownership_of_fighter(inFighter) -> void:
 func _save_state() -> Dictionary:
 	return {
 		curTick = curTick,
-		inputState = inputState.duplicate(),
-		inputBuffer = inputBuffer.duplicate()
+		_inputState = inputState.duplicate(),
+		_inputBuffer = inputBuffer.duplicate()
 	}
 
 func _load_state(state: Dictionary) -> void:
 	curTick = state["curTick"]
-	inputState = state["inputState"].duplicate()
-	inputBuffer = state["inputBuffer"].duplicate()
+	inputState = state["_inputState"].duplicate()
+	inputBuffer = state["_inputBuffer"].duplicate()

@@ -31,17 +31,17 @@ func _execute(inFt: Fighter, inHurtbox: HurtboxDefinition, inHitbox: HitboxDefin
 	if !invincible:
 		inFt.hitLag = ourHitlag
 	attacker.hitLag = ourHitlag
-	print("Knockback: " + str(knockBack))
-	print("Hitstun: " + str(inFt.hitStun))
-	print("Hitlag: " + str(ourHitlag))
+	#print("Knockback: " + str(knockBack))
+	#print("Hitstun: " + str(inFt.hitStun))
+	#print("Hitlag: " + str(ourHitlag))
 	if invincible:
 		return
 	var desiredAnim = "DamageN1"
 	if knockBack < 80:
 		if DownStates.has(inFt.charState.stateName) and knockBack <= 25:
+			inFt.facing = oldFacing
 			inFt._change_fighter_state(inFt.find_state_by_name("DownDamage"), 0, 0)
 			desiredAnim = "DownDamage" + inFt.downDesire
-			inFt.facing = oldFacing
 		else:
 			inFt._change_fighter_state(inFt.find_state_by_name("Damage"), 0, 0)
 			if inFt.grounded:
@@ -76,7 +76,7 @@ func _execute(inFt: Fighter, inHurtbox: HurtboxDefinition, inHitbox: HitboxDefin
 	else:
 		inFt._change_fighter_state(inFt.find_state_by_name("DamageFly"), 0, 0)
 		if inFt.grounded and inFt.kbVel.y < 0:
-			print("Started grounded, and spiked - let's invert the y.")
+			#print("Started grounded, and spiked - let's invert the y.")
 			inFt.kbVel.y *= -0.8
 		if inHurtbox.bodyType == HurtboxDefinition.hurtboxBodyType.High:
 			desiredAnim = "DamageFlyHi"

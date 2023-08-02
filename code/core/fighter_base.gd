@@ -10,6 +10,7 @@ var lastConstruct = 0.0
 var input_controller: BasePlayer
 var stage: PFStage
 var badgeGrid
+var fighterID : int = -1
 @export var UpdateHurtboxes = false:
 	set(inHurt):
 		construct_hurtboxes()
@@ -68,7 +69,7 @@ var ActiveHitboxes: Array[HitboxDefinition] = []
 var curSubaction: Array[Array]
 var stateFlags: int = 0
 var FightersHit: Array[Fighter] = []
-var GrabbedFighter: Fighter
+var GrabbedFighter : int = -1
 var facing : int = 1
 var kbVel : Vector2 = Vector2.ZERO
 var ftVel : Vector2 = Vector2.ZERO
@@ -117,8 +118,8 @@ func update_ui_percent() -> void:
 func _network_spawn(data: Dictionary) -> void:
 	position = data["position"]
 	input_controller = data["controller"]
-	ourShield = shield.duplicate()
-	ourFightTable = FightTable.duplicate()
+	ourShield = shield.duplicate(true)
+	ourFightTable = FightTable.duplicate(true)
 	FighterSkeleton = $Skeleton3D
 	set_body_vulnerability(HurtboxDefinition.hurtboxBodyState.Normal)
 	grounded = true
@@ -242,9 +243,9 @@ func do_fighter_move_and_collide(desiredPos: Vector2):
 	if wasGrounded:
 		var onGround = check_and_move_to_ground()
 		if !onGround:
-			print("no ground!")
+			#print("no ground!")
 			if !charState.allowSlideoff:
-				print("preventing slideoff")
+				#print("preventing slideoff")
 				var closest = oldGround.startOffset
 				if (oldGround.endOffset - ftPos).length() < (oldGround.startOffset - ftPos).length():
 					closest = oldGround.endOffset
@@ -255,7 +256,7 @@ func do_fighter_move_and_collide(desiredPos: Vector2):
 				ftVel = Vector2.ZERO
 				grounded = true
 			else:
-				print("go airborne")
+				#print("go airborne")
 				check_on_airborne()
 	#DebugDraw.draw_sphere(FHelp.Vec2to3(ftPos), 0.5, Color(1, 1, 1), 0.016666)
 	#draw_ecb()
@@ -362,6 +363,8 @@ func try_fighter_ccd() -> void:
 		for s in range(stage.StageCollisionSegments.size()):
 			var segment = stage.StageCollisionSegments[s]
 			var segDir = (segment.endOffset - segment.startOffset).rotated(PI * 0.5).normalized()
+			if get_frame_in_state() >= InterruptableTime and segment.colType == StageCollisionSegment.collisionType.semisolid and input_controller.get_movement_vector_unbuffered().y > 0.85:
+				continue
 			if dir.dot(segDir) > 0:
 				continue
 			if get_surface_type(segDir) == SurfaceSlope.WALL and (p != 0 and p != 2):
@@ -428,7 +431,8 @@ func construct_hurtboxes():
 			for subaction in curSubaction[i]:
 				if subaction:
 					subaction._execute(self)
-		for hitboxDef in ActiveHitboxes:
+		for hbd in range(ActiveHitboxes.size()):
+			var hitboxDef = ActiveHitboxes[hbd]
 			if !ActiveHitboxes:
 				continue
 			if FighterSkeleton.find_bone(hitboxDef.boneName) == -1:
@@ -450,7 +454,8 @@ func construct_hurtboxes():
 	anim.seek(oldAnimPos, true)
 	update_pose()
 	#print(ActiveHitboxes)
-	for hitboxDef in ActiveHitboxes:
+	for hbd in range(ActiveHitboxes.size()):
+		var hitboxDef = ActiveHitboxes[hbd]
 		if !ActiveHitboxes:
 			continue
 		if FighterSkeleton.find_bone(hitboxDef.boneName) == -1:
@@ -576,7 +581,7 @@ func _change_fighter_state(inState: FighterState, blend: int = 0, lag: int = 0) 
 	oldPose.resize(FighterSkeleton.get_bone_count())
 	for i in range(FighterSkeleton.get_bone_count()):
 		oldPose[i] = FighterSkeleton.get_bone_pose(i)
-		FighterSkeleton.reset_bone_pose(i)
+	FighterSkeleton.reset_bone_poses()
 	lastStateChange = internalFrameCounter
 	charState = inState
 	blendTime = blend
@@ -595,6 +600,7 @@ func _change_fighter_state(inState: FighterState, blend: int = 0, lag: int = 0) 
 		TransNOldPos = TransNPos
 	
 	if blendTime > 0:
+		#print("Blending at tick " + str(internalFrameCounter))
 		var ratio = float(get_frame_in_state() + 1) / blendTime
 		for i in range(FighterSkeleton.get_bone_count()):
 			var blendTransform = oldPose[i].interpolate_with(FighterSkeleton.get_bone_pose(i), ratio)
@@ -755,7 +761,6 @@ func apply_shielded_hit_effects(inVictim: Fighter, inHitbox: HitboxDefinition) -
 	var d = inHitbox.damage + inHitbox.damageShield
 	var s = max(input_controller.get_trigger_analog_unbuffered(), 0.3)
 	var a = 0.65 * (1 - ((s - 0.3) / 0.7))
-	print(a)
 	inVictim.shieldStun = 200 / 201 * (((d * (a + 0.3)) * 1.5) + 2)
 	var side = sign((inVictim.ftPos - ftPos).x)
 	inVictim.ftVel += Vector2((d * 0.09 + 0.4) * side, 0)
@@ -766,8 +771,6 @@ func apply_shielded_hit_effects(inVictim: Fighter, inHitbox: HitboxDefinition) -
 	hitLag = ourHitlag
 	inVictim.hitLag = ourHitlag
 	inVictim.ourShield.health = max(inVictim.ourShield.health - d, 0)
-	print("shieldstun: " + str(inVictim.shieldStun))
-	print("shield health:" + str(inVictim.ourShield.health))
 
 func check_on_airborne() -> void:
 	if grounded:
@@ -783,7 +786,8 @@ func check_on_landing() -> void:
 
 func check_and_move_to_ground() -> bool:
 	var hitAny = false
-	for segment in stage.StageCollisionSegments:
+	for s in range(stage.StageCollisionSegments.size()):
+		var segment = stage.StageCollisionSegments[s]
 		var segDir = (segment.endOffset - segment.startOffset).rotated(PI * 0.5).normalized()
 		if get_surface_type(segDir) == SurfaceSlope.FLOOR:
 			var testDist = 3
@@ -807,7 +811,6 @@ func fighter_tick() -> void:
 			if hitLag > 0:
 				hitLag -= 1
 			if hitLag == 0:
-				print("Doing DI")
 				internalFrameCounter += 1
 				#DebugDraw.draw_arrow_line(FHelp.Vec2to3(ftPos), FHelp.Vec2to3(ftPos + kbVel.normalized() * 32), Color(0.3, 0.3, 0.3), 0.1, false, 3)
 				var kbVelPerpendicular = kbVel.rotated(PI * 0.5).normalized()
@@ -914,93 +917,114 @@ func fighter_tick() -> void:
 
 func _save_state() -> Dictionary:
 	var state = {
-		_Hurtboxes = Hurtboxes.duplicate(),
-		_FightersHit = FightersHit.duplicate(),
-		_ActiveHitboxes = ActiveHitboxes.duplicate(),
-		_curSubaction = curSubaction.duplicate(),
-		_charState = charState.duplicate(),
-		_ourShield = ourShield.duplicate(),
-		_ourFightTable = ourFightTable.duplicate(),
-		lastTimeOnLedge = lastTimeOnLedge,
-		ledgeBox = ledgeBox,
-		stateFlags = stateFlags,
-		facing = facing,
+		_Hurtboxes = Hurtboxes.duplicate(true),
+		_shield = shield.duplicate(true),
+		_FightTable = FightTable.duplicate(true),
+		_ECB_Bones = ECB_Bones.duplicate(true),
+		_OnStateEnterFuncs = OnStateEnterFuncs.duplicate(true),
+		_OnFrameFuncs = OnFrameFuncs.duplicate(true),
+		_OnDamageFuncs = OnDamageFuncs.duplicate(true),
+		_States = States.duplicate(true),
+		_ourShield = ourShield.duplicate(true),
+		_ourFightTable = ourFightTable.duplicate(true),
+		_ECB = ECB.duplicate(true),
+		_ECBOld = ECBOld.duplicate(true),
+		_ActiveHitboxes = ActiveHitboxes.duplicate(true),
+		_curSubaction = curSubaction.duplicate(true),
+		_FightersHit = FightersHit.duplicate(true),
+		_charState = charState.duplicate(true),
+		_oldPose = oldPose.duplicate(true),
+		
+		_ledgeBox = ledgeBox,
+		_stateFlags = stateFlags,
+		_facing = facing,
+		_grounded = grounded,
+		_hitLag = hitLag,
+		_hitStun = hitStun,
+		_blendTime = blendTime,
+		_lastStateChange = lastStateChange,
+		_TransNPhysics = TransNPhysics,
+		_TransNOldPos = TransNOldPos,
+		_InterruptableTime = InterruptableTime,
+		_jumps = jumps,
+		_JustChangedState = JustChangedState,
+		_downDesire = downDesire,
+		_effectiveVel = effectiveVel,
+		_shieldStun = shieldStun,
+		_lastTimeOnLedge = lastTimeOnLedge,
+		
+		animVel = animVel,
 		kbVel = kbVel,
 		ftVel = ftVel,
-		animVel = animVel,
 		ftPos = ftPos,
-		grounded = grounded,
-		hitLag = hitLag,
-		hitStun = hitStun,
 		percentage = percentage,
-		blendTime = blendTime,
-		lastStateChange = lastStateChange,
-		TransNPhysics = TransNPhysics,
-		TransNOldPos = TransNOldPos,
-		InterruptableTime = InterruptableTime,
-		jumps = jumps,
-		JustChangedState = JustChangedState,
-		internalFrameCounter = internalFrameCounter,
-		lastHitHurtbox = lastHitHurtbox,
-		lastHitHitbox = lastHitHitbox,
-		downDesire = downDesire,
-		effectiveVel = effectiveVel,
-		shieldStun = shieldStun,
-		ECB_Bones = ECB_Bones.duplicate(),
-		ECB = ECB.duplicate(),
-		ECBOld = ECBOld.duplicate(),
-		oldPose = oldPose.duplicate()
+		internalFrameCounter = internalFrameCounter
 	}
+		
 	if GrabbedFighter:
-		state._GrabbedFighter = GrabbedFighter.duplicate()
+		state._GrabbedFighter = GrabbedFighter
+	if lastHitHurtbox:
+		state._lastHitHurtbox = lastHitHurtbox.duplicate(true)
+	if lastHitHitbox:
+		state._lastHitHitbox = lastHitHitbox.duplicate(true)
 	if currentLedge:
-		state._currentLedge = currentLedge.duplicate()
+		state._currentLedge = currentLedge.duplicate(true)
 	if currentGround:
-		state._currentGround = currentGround.duplicate()
+		state._currentGround = currentGround.duplicate(true)
 	return state
-	
 
 func _load_state(state: Dictionary) -> void:
-		Hurtboxes = state["_Hurtboxes"].duplicate()
-		FightersHit = state["_FightersHit"].duplicate()
-		ActiveHitboxes = state["_ActiveHitboxes"].duplicate()
-		curSubaction = state["_curSubaction"].duplicate()
-		charState = state["_charState"].duplicate()
-		ourShield = state["_ourShield"].duplicate()
-		ourFightTable = state["_ourFightTable"].duplicate()
-		lastTimeOnLedge = state["lastTimeOnLedge"]
-		ledgeBox = state["ledgeBox"]
-		stateFlags = state["stateFlags"]
-		facing = state["facing"]
-		kbVel = state["kbVel"]
-		ftVel = state["ftVel"]
-		animVel = state["animVel"]
-		ftPos = state["ftPos"]
-		grounded = state["grounded"]
-		hitLag = state["hitLag"]
-		hitStun = state["hitStun"]
-		percentage = state["percentage"]
-		blendTime = state["blendTime"]
-		lastStateChange = state["lastStateChange"]
-		TransNPhysics = state["TransNPhysics"]
-		TransNOldPos = state["TransNOldPos"]
-		InterruptableTime = state["InterruptableTime"]
-		jumps = state["jumps"]
-		JustChangedState = state["JustChangedState"]
-		internalFrameCounter = state["internalFrameCounter"]
-		lastHitHurtbox = state["lastHitHurtbox"]
-		lastHitHitbox = state["lastHitHitbox"]
-		downDesire = state["downDesire"]
-		effectiveVel = state["effectiveVel"]
-		shieldStun = state["shieldStun"]
-		ECB_Bones = state["ECB_Bones"].duplicate()
-		ECB = state["ECB"].duplicate()
-		ECBOld = state["ECBOld"].duplicate()
-		oldPose = state["oldPose"].duplicate()
+	Hurtboxes = state["_Hurtboxes"].duplicate(true)
+	shield = state["_shield"].duplicate(true)
+	FightTable = state["_FightTable"].duplicate(true)
+	ECB_Bones = state["_ECB_Bones"].duplicate(true)
+	OnStateEnterFuncs = state["_OnStateEnterFuncs"].duplicate(true)
+	OnFrameFuncs = state["_OnFrameFuncs"].duplicate(true)
+	OnDamageFuncs = state["_OnDamageFuncs"].duplicate(true)
+	States = state["_States"].duplicate(true)
+	ourShield = state["_ourShield"].duplicate(true)
+	ourFightTable = state["_ourFightTable"].duplicate(true)
+	ECB = state["_ECB"].duplicate(true)
+	ECBOld = state["_ECBOld"].duplicate(true)
+	ActiveHitboxes = state["_ActiveHitboxes"].duplicate(true)
+	curSubaction = state["_curSubaction"].duplicate(true)
+	FightersHit = state["_FightersHit"].duplicate(true)
+	charState = state["_charState"].duplicate(true)
+	oldPose = state["_oldPose"].duplicate(true)
+	
+	ledgeBox = state["_ledgeBox"]
+	stateFlags = state["_stateFlags"]
+	facing = state["_facing"]
+	grounded = state["_grounded"]
+	hitLag = state["_hitLag"]
+	hitStun = state["_hitStun"]
+	blendTime = state["_blendTime"]
+	lastStateChange = state["_lastStateChange"]
+	TransNPhysics = state["_TransNPhysics"]
+	TransNOldPos = state["_TransNOldPos"]
+	InterruptableTime = state["_InterruptableTime"]
+	jumps = state["_jumps"]
+	JustChangedState = state["_JustChangedState"]
+	downDesire = state["_downDesire"]
+	effectiveVel = state["_effectiveVel"]
+	shieldStun = state["_shieldStun"]
+	lastTimeOnLedge = state["_lastTimeOnLedge"]
+	
+	animVel = state["animVel"]
+	kbVel = state["kbVel"]
+	ftVel = state["ftVel"]
+	ftPos = state["ftPos"]
+	percentage = state["percentage"]
+	internalFrameCounter = state["internalFrameCounter"]
+	
 		
-		if state.has("_GrabbedFighter"):
-			GrabbedFighter = state["_GrabbedFighter"].duplicate()
-		if state.has("_currentLedge"):
-			currentLedge = state["_currentLedge"].duplicate()
-		if state.has("_currentGround"):
-			currentGround = state["_currentGround"].duplicate()
+	if state.has("_GrabbedFighter"):
+		GrabbedFighter = state["_GrabbedFighter"]
+	if state.has("_lastHitHurtbox"):
+		lastHitHurtbox = state["_lastHitHurtbox"].duplicate(true)
+	if state.has("_lastHitHitbox"):
+		lastHitHitbox = state["_lastHitHitbox"].duplicate(true)
+	if state.has("_currentLedge"):
+		currentLedge = state["_currentLedge"].duplicate(true)
+	if state.has("_currentGround"):
+		currentGround = state["_currentGround"].duplicate(true)

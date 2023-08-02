@@ -12,4 +12,7 @@ func _execute(inFt: Fighter, allowControl: bool = true):
 	else:
 			inFt.apply_drag()
 	
-	inFt.ftVel.y = maxf(inFt.ftVel.y - inFt.FightTable.Gravity, -inFt.FightTable.TerminalVelocity)
+	if inFt.check_fighter_flag(12):
+		inFt.ftVel.y = maxf(inFt.ftVel.y - inFt.FightTable.Gravity, -inFt.FightTable.FastFallTerminalVelocity)
+	else:
+		inFt.ftVel.y = maxf(inFt.ftVel.y - inFt.FightTable.Gravity, -inFt.FightTable.TerminalVelocity)

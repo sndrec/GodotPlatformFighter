@@ -76,6 +76,8 @@ func _on_SyncManager_sync_started() -> void:
 	var Fighter2 = SyncManager.spawn("Fighter2", $StageContainer, RookFighter, {"position" = Vector3(0, 0, 0), "controller" = $ClientPlayer})
 	Fighter1.stage = Stage
 	Fighter2.stage = Stage
+	Fighter1.fighterID = 0
+	Fighter2.fighterID = 1
 	Fighter1.badgeGrid = %BadgeGrid
 	Fighter2.badgeGrid = %BadgeGrid
 	$ServerPlayer.controlledFighter = Fighter1

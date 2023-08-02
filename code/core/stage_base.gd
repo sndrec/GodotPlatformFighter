@@ -21,6 +21,8 @@ func _ready():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
+	if !Engine.is_editor_hint():
+		return
 	for seg in StageCollisionSegments:
 		var start3D = Vector3(seg.startOffset.x, seg.startOffset.y, 0)
 		var end3D = Vector3(seg.endOffset.x, seg.endOffset.y, 0)
@@ -134,9 +136,9 @@ func _network_process(input: Dictionary) -> void:
 
 func _save_state() -> Dictionary:
 	return {
-		cameraTransform = cameraTransform
+		_cameraTransform = cameraTransform
 	}
 	
 
 func _load_state(state: Dictionary) -> void:
-	cameraTransform = state["cameraTransform"]
+	cameraTransform = state["_cameraTransform"]

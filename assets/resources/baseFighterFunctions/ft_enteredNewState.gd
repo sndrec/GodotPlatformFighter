@@ -4,6 +4,7 @@ func _execute(inFt: Fighter):
 	inFt.clear_hitboxes()
 	inFt.unfold_action(inFt.charState.action)
 	inFt.FighterSkeleton.clear_bones_global_pose_override()
+	inFt.FighterSkeleton.reset_bone_poses()
 	inFt.ourShield.active = false
 	inFt.get_node("ShieldSprite").visible = false
 	var hasAnim = inFt.charState.stateAnim != ""

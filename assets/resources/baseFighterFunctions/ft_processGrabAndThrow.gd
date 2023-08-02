@@ -5,9 +5,9 @@ func _execute(inFt: Fighter) -> void:
 	inFt.FighterSkeleton.set_bone_pose_rotation(inFt.FighterSkeleton.find_bone("TransN"), Quaternion.IDENTITY)
 	inFt.FighterSkeleton.set_bone_pose_scale(inFt.FighterSkeleton.find_bone("TransN"), Vector3.ONE)
 	inFt.update_pose()
-	var grabbed = inFt.GrabbedFighter
-	if !grabbed:
+	if inFt.GrabbedFighter == -1:
 		return
+	var grabbed = inFt.stage.fighters[inFt.GrabbedFighter]
 	var desiredHipPose : Transform3D = inFt.FighterSkeleton.get_bone_global_pose(inFt.FighterSkeleton.find_bone("ThrowN"))
 	desiredHipPose = inFt.FighterSkeleton.transform * desiredHipPose
 	desiredHipPose = inFt.transform * desiredHipPose
@@ -19,5 +19,5 @@ func _execute(inFt: Fighter) -> void:
 	grabbedTransNGlobalPose = grabbed.transform * grabbedTransNGlobalPose
 	var offset = desiredHipPose * (grabbedHipNGlobalPose.affine_inverse() * grabbedTransNGlobalPose)
 	grabbed.ftPos = FHelp.Vec3to2(offset.origin)
-	grabbed.FighterSkeleton.set_bone_global_pose_override(grabbed.FighterSkeleton.find_bone("TransN"), Transform3D(inFt.FighterSkeleton.get_bone_global_pose(inFt.FighterSkeleton.find_bone("ThrowN")).basis, Vector3.ZERO), 1, false)
+	grabbed.FighterSkeleton.set_bone_global_pose_override(grabbed.FighterSkeleton.find_bone("TransN"), Transform3D(inFt.FighterSkeleton.get_bone_global_pose(inFt.FighterSkeleton.find_bone("ThrowN")).basis.orthonormalized(), Vector3.ZERO), 1, false)
 	grabbed.update_pose()

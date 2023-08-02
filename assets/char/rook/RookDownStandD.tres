@@ -3,6 +3,7 @@
 [resource]
 resource_name = "DownStandD"
 length = 0.65
+step = 0.0166667
 tracks/0/type = "position_3d"
 tracks/0/imported = true
 tracks/0/enabled = true

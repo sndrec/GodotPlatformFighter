@@ -2,7 +2,8 @@
 
 [resource]
 resource_name = "DamageHi3"
-length = 4.66667
+length = 0.500002
+step = 0.0166667
 tracks/0/type = "position_3d"
 tracks/0/imported = true
 tracks/0/enabled = true

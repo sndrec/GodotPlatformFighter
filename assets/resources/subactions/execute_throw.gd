@@ -15,8 +15,8 @@ var SubactionName = "Execute Throw"
 @export var ThrowWeightBasedSetKB : float = 0.0
 
 func _execute(inFt: Fighter) -> void:
-	var grabbedRef = inFt.GrabbedFighter
-	inFt.GrabbedFighter = null
+	var grabbedRef = inFt.stage.fighters[inFt.GrabbedFighter]
+	inFt.GrabbedFighter = -1
 	var tempHitbox = preload("res://assets/resources/hitbox_definition.tres").duplicate()
 	tempHitbox.damage = ThrowDamage
 	tempHitbox.kbAngleFixed = true

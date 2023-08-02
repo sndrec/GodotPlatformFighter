@@ -7,4 +7,5 @@ func _execute(inFt: Fighter):
 		inFt.InterruptableTime = 32768
 		AirMovement._execute(inFt, false)
 	else:
+		inFt.InterruptableTime = 0
 		AirMovement._execute(inFt, true)
